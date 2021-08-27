@@ -3,7 +3,8 @@
 [跳转中文介绍](README-CN.md)  
 
 # RW-HPS
-![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
+![Github stars](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS?ref=badge_shield)
+
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
 [![](https://jitpack.io/v/RW-HPS/RW-HPS.svg)](https://jitpack.io/#RW-HPS/RW-HPS)  
 
@@ -47,6 +48,9 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ```
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS?ref=badge_large)
 
 #### Game protocols that will not be supported
 - Server List -> ADD List, Update List, Remove List  
