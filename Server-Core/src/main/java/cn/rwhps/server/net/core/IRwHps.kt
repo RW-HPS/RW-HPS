@@ -52,6 +52,8 @@ interface IRwHps {
         RelayProtocol,
         /** Relay协议 多播RELAY实现 */
         RelayMulticastProtocol,
+        /** ServerFFA协议 混战服务器实现 */
+        ServerFFAProtocol,
         /** 无实现 找不到对应实现 */
         NullProtocol;
 

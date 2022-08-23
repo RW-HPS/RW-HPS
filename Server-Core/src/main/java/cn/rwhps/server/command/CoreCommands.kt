@@ -113,7 +113,7 @@ class CoreCommands(handler: CommandHandler) {
     private fun registerStartServer(handler: CommandHandler) {
         handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerProtocol,log)}
         handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
-
+        handler.register("startffa", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerFFAProtocol,log)}
 
         handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size() > 0) {
