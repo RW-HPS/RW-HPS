@@ -34,7 +34,7 @@ import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
 import java.net.BindException
 import java.net.ServerSocket
-
+import net.rwhps.server.util.log.Log.error
 /**
  * NetGameServer Service
  * Open interfaces at least to the outside world, and try to integrate internally as much as possible

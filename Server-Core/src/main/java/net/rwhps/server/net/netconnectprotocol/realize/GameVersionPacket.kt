@@ -33,7 +33,7 @@ import net.rwhps.server.util.encryption.Game
 import net.rwhps.server.util.encryption.Sha
 import java.io.IOException
 import java.math.BigInteger
-
+import net.rwhps.server.util.log.Log.error
 /**
  * Provides support for most common packages for the server
  *

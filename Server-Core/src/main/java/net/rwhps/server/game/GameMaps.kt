@@ -12,7 +12,7 @@ package net.rwhps.server.game
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.zip.zip.ZipDecoder
-
+import net.rwhps.server.util.log.Log.error
 /**
  * 游戏的地图数据
  * @author RW-HPS/Dr

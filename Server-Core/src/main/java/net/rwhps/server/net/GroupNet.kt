@@ -19,6 +19,7 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.struct.Seq
 import java.io.IOException
 import java.util.concurrent.Executors
+import net.rwhps.server.util.log.Log.error
 
 /**
  * Bulk support for connections

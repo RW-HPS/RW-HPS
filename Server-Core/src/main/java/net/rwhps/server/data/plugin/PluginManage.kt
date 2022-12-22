@@ -11,6 +11,7 @@ package net.rwhps.server.data.plugin
 
 import net.rwhps.server.data.plugin.PluginEventManage.Companion.add
 import net.rwhps.server.plugin.Plugin
+import net.rwhps.server.plugin.PluginsLoad
 import net.rwhps.server.plugin.PluginsLoad.Companion.resultPluginData
 import net.rwhps.server.plugin.PluginsLoad.PluginLoadData
 import net.rwhps.server.struct.Seq
@@ -37,7 +38,7 @@ object PluginManage {
     }
 
     fun addPluginClass(name: String,author: String,description: String, version: String, main: Plugin,mkdir: Boolean , skip: Boolean = false) {
-        addPluginClass(name,author,description,version,main,mkdir,skip,pluginData!!)
+        PluginsLoad.addPluginClass(name,author,description,version,main,mkdir,skip,pluginData!!)
     }
 
     /** 最先执行 可以进行Plugin的数据读取  -1  */

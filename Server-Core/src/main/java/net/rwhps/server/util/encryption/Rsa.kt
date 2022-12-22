@@ -21,7 +21,7 @@ import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
 import javax.crypto.IllegalBlockSizeException
 import javax.crypto.NoSuchPaddingException
-
+import net.rwhps.server.util.log.Log.error
 class Rsa {
     /*
         public static void main(String [] args) throws Exception {

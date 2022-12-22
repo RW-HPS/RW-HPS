@@ -15,7 +15,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request.Builder
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.*
-
+import net.rwhps.server.util.log.Log.error
 
 /**
  * HTTP

@@ -16,7 +16,7 @@ import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
 import java.lang.reflect.Field
-
+import net.rwhps.server.util.log.Log.error
 
 /**
  * Save data for serialization and deserialization

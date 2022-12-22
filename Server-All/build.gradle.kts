@@ -27,8 +27,8 @@ tasks.jar {
 	exclude("about.html")
 
 	manifest {
-		attributes(mapOf("Main-Class" to "cn.rwhps.server.Main"))
-		attributes(mapOf("Launcher-Agent-Class" to  "cn.rwhps.server.dependent.AgentAttachData"))
+		attributes(mapOf("Main-Class" to "net.rwhps.server.Main"))
+		attributes(mapOf("Launcher-Agent-Class" to  "net.rwhps.server.dependent.AgentAttachData"))
 		attributes(mapOf("Can-Redefine-Classes" to  "true"))
 	}
 
