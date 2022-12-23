@@ -29,7 +29,7 @@ class GameHeadlessEventGlobal : AbstractGlobalEvent {
         }
         newGameFlag = true
 
-        GameNet.newConnect()
+//        GameNet.newConnect()
         Log.clog(Data.i18NBundle.getinput("server.load.end"))
         Log.clog("Run GameHeadless")
     }

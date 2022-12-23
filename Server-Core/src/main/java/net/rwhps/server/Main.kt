@@ -142,8 +142,8 @@ object Main {
         add(Event())
         add(EventGlobal())
 
-//        add(GameHeadlessEvent())
-//        add(GameHeadlessEventGlobal())
+        add(GameHeadlessEvent())
+        add(GameHeadlessEventGlobal())
         clog(Data.i18NBundle.getinput("server.load.events"))
 
         /* 初始化Plugin */

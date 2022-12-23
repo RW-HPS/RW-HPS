@@ -51,7 +51,7 @@ object ModManage {
 
         enabledMods.forEach {
             val modGroup = it.key
-            if (enabledModsName.contains(modGroup)) {
+//            if (enabledModsName.contains(modGroup)) {
                 val modData = it.value
                 try {
                     val core = modGroup == coreName
@@ -73,7 +73,7 @@ object ModManage {
                     Log.error(e)
                 }
             }
-        }
+//        }
     }
 
     @NeedToRefactor

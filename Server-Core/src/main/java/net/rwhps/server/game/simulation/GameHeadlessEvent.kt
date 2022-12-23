@@ -34,7 +34,7 @@ class GameHeadlessEvent : AbstractEvent {
 
         GameData.clean()
         Log.clog("Stop GameHeadless")
-        GameNet.newConnect()
+//        GameNet.newConnect()
         Log.clog("ReRun GameHeadless")
     }
 
