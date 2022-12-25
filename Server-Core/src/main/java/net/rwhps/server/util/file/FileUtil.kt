@@ -25,7 +25,7 @@ import net.rwhps.server.util.io.IoReadConversion.fileToStream
 import net.rwhps.server.util.log.Log.error
 import java.io.*
 import java.net.URLDecoder.decode
-import net.rwhps.server.util.log.Log.error
+
 /**
  * FileUtil() refers to instance fileUtil. FileUtil refers to static method
  *

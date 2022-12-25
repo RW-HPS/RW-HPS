@@ -19,7 +19,6 @@ import net.rwhps.server.util.log.Log.debug
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
 import java.lang.reflect.Field
-import net.rwhps.server.util.log.Log.error
 
 /**
  * Save data for serialization and deserialization

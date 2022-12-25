@@ -31,7 +31,6 @@ import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.error
 import java.io.IOException
-import net.rwhps.server.util.log.Log.error
 /**
  * @author RW-HPS/Dr
  */
