@@ -19,7 +19,7 @@ class SlickRedirections : MainRedirections {
         redirect("Lorg/newdawn/slick/AppletGameContainer;setMouseCursor(Lorg/newdawn/slick/Image;II)V")
 
         // 替换版本号
-        AsmAgent.addPartialMethod("org/newdawn/slick/GameContainer" , arrayOf("getBuildVersion","()I")) { obj: Any?, desc: String?, type: Class<*>?, args: Array<Any?>? ->
+        AsmAgent.addPartialMethod("org/newdawn/slick/GameContainer" , arrayOf("getBuildVersion","()I")) { _: Any?, _: String?, _: Class<*>?, _: Array<Any?>? ->
             org.newdawn.slick.util.Log.info("Slick Build : RW-HPS-Headless-Slick RwGame#84")
             0
         }
@@ -29,7 +29,7 @@ class SlickRedirections : MainRedirections {
         redirect("Lorg/newdawn/slick/Sound;playing()Z", DefaultRedirections.BOOLEANT)
 
         // 替换默认图形处理器
-        AsmAgent.addPartialMethod("org/newdawn/slick/opengl/pbuffer/GraphicsFactory" , arrayOf("createGraphics","(Lorg/newdawn/slick/Image;)Lorg/newdawn/slick/Graphics;")) { obj: Any?, desc: String?, type: Class<*>?, args: Array<Any> ->
+        AsmAgent.addPartialMethod("org/newdawn/slick/opengl/pbuffer/GraphicsFactory" , arrayOf("createGraphics","(Lorg/newdawn/slick/Image;)Lorg/newdawn/slick/Graphics;")) { _: Any?, _: String?, _: Class<*>?, args: Array<Any> ->
             DrGraphics(args[0] as Image)
         }
 

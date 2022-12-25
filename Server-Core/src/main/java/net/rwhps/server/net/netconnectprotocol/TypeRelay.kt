@@ -20,8 +20,9 @@ import net.rwhps.server.net.core.DataPermissionStatus.RelayStatus.*
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
-import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.PacketType.*
+import net.rwhps.server.util.ReflectionUtils
+import net.rwhps.server.util.game.CommandHandler
 
 /**
  * Parse the [net.rwhps.server.net.core.IRwHps.NetType.RelayProtocol] protocol
@@ -43,14 +44,14 @@ open class TypeRelay : TypeConnect {
     }
     constructor(con: Class<out GameVersionRelay>) {
         // will not be used ; just override the initial value to avoid refusing to compile
-        this.con = net.rwhps.server.util.ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
+        this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
 
         // use for instantiation
         conClass = con
     }
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-         return TypeRelay(net.rwhps.server.util.ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+         return TypeRelay(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)
@@ -75,11 +76,11 @@ open class TypeRelay : TypeConnect {
                         if (it.readIsString() == con.name) {
                             if (message.startsWith(".")) {
                                 val response = Data.RELAY_COMMAND.handleMessage(message, con)
-                                if (response == null || response.type == net.rwhps.server.util.game.CommandHandler.ResponseType.noCommand) {
-                                } else if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+                                if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                                } else if (response.type != CommandHandler.ResponseType.valid) {
                                     val text: String = when (response.type) {
-                                        net.rwhps.server.util.game.CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                        net.rwhps.server.util.game.CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                        CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                        CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                                         else -> return@use
                                     }
                                     con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
@@ -143,7 +144,7 @@ open class TypeRelay : TypeConnect {
                         registerServer.writeString("com.corrodinggames.rts.server")
                         registerServer.writeString(Data.SERVER_RELAY_UUID)
                         registerServer.writeInt("Dr @ 2022".hashCode())
-                        con.sendPacket(registerServer.createPacket(PacketType.PREREGISTER_INFO))
+                        con.sendPacket(registerServer.createPacket(PREREGISTER_INFO))
                     } else if (packet.type == SERVER_DEBUG_RECEIVE) {
                         con.debug(packet)
                     }

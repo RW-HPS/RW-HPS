@@ -15,6 +15,8 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.Administration.PlayerAdminInfo
 import net.rwhps.server.net.Administration.PlayerInfo
 import net.rwhps.server.net.core.NetConnectProofOfWork
+import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.struct.SerializerTypeAll.TypeSerializer
 import java.io.IOException
@@ -95,8 +97,7 @@ internal object DefaultSerializers {
                 stream.writeInt(objectData.size)
                 if (objectData.size != 0) {
                     val first = objectData.first()!!
-                    val ser = AbstractPluginData.getSerializer(first.javaClass)
-                        ?: throw IllegalArgumentException(first.javaClass.toString() + " does not have a serializer registered!")
+                    val ser = AbstractPluginData.getSerializer(first.javaClass) ?: throw getError(first.javaClass.toString())
                     stream.writeString(first.javaClass.name)
                     for (element in objectData) {
                         ser.write(stream, element)
@@ -128,41 +129,37 @@ internal object DefaultSerializers {
                 }
             }
         })
-        AbstractPluginData.setSerializer(net.rwhps.server.struct.ObjectMap::class.java, object : TypeSerializer<net.rwhps.server.struct.ObjectMap<*, *>> {
+        AbstractPluginData.setSerializer(ObjectMap::class.java, object : TypeSerializer<ObjectMap<*, *>> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, map: net.rwhps.server.struct.ObjectMap<*, *>) {
+            override fun write(stream: GameOutputStream, map: ObjectMap<*, *>) {
                 stream.writeInt(map.size)
                 if (map.size == 0) {
                     return
                 }
                 val entry = map.entries().next()
-                val keySer = AbstractPluginData.getSerializer(entry.key.javaClass)
-                val valSer = AbstractPluginData.getSerializer(entry.value.javaClass)
-                requireNotNull(keySer) { entry.key.javaClass.toString() + " does not have a serializer registered!" }
-                requireNotNull(valSer) { entry.value.javaClass.toString() + " does not have a serializer registered!" }
+                val keySer = AbstractPluginData.getSerializer(entry.key.javaClass) ?: throw getError(entry.key.javaClass.toString())
+                val valSer = AbstractPluginData.getSerializer(entry.value.javaClass) ?: throw getError(entry.value.javaClass.toString())
                 stream.writeString(entry.key.javaClass.name)
                 stream.writeString(entry.value.javaClass.name)
                 for (e in map.entries()) {
-                    val en = e as net.rwhps.server.struct.ObjectMap.Entry<*, *>
+                    val en = e as ObjectMap.Entry<*, *>
                     keySer.write(stream, en.key)
                     valSer.write(stream, en.value)
                 }
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): net.rwhps.server.struct.ObjectMap<*, *>? {
+            override fun read(stream: GameInputStream): ObjectMap<*, *>? {
                 return try {
                     val size = stream.readInt()
-                    val map = net.rwhps.server.struct.ObjectMap<Any?, Any?>()
+                    val map = ObjectMap<Any?, Any?>()
                     if (size == 0) {
                         return map
                     }
                     val keySerName = stream.readString()
                     val valSerName = stream.readString()
-                    val keySer = AbstractPluginData.getSerializer(lookup(keySerName))
-                    val valSer = AbstractPluginData.getSerializer(lookup(valSerName))
-                    requireNotNull(keySer) { "$keySerName does not have a serializer registered!" }
-                    requireNotNull(valSer) { "$valSerName does not have a serializer registered!" }
+                    val keySer = AbstractPluginData.getSerializer(lookup(keySerName)) ?: throw getError(keySerName)
+                    val valSer = AbstractPluginData.getSerializer(lookup(valSerName)) ?: throw getError(valSerName)
                     for (i in 0 until size) {
                         val key = keySer.read(stream)
                         val `val` = valSer.read(stream)
@@ -175,41 +172,37 @@ internal object DefaultSerializers {
                 }
             }
         })
-        AbstractPluginData.setSerializer(net.rwhps.server.struct.OrderedMap::class.java, object : TypeSerializer<net.rwhps.server.struct.OrderedMap<*, *>> {
+        AbstractPluginData.setSerializer(OrderedMap::class.java, object : TypeSerializer<OrderedMap<*, *>> {
             @Throws(IOException::class)
-            override fun write(stream: GameOutputStream, map: net.rwhps.server.struct.OrderedMap<*, *>) {
+            override fun write(stream: GameOutputStream, map: OrderedMap<*, *>) {
                 stream.writeInt(map.size)
                 if (map.size == 0) {
                     return
                 }
                 val entry = map.entries().next()
-                val keySer = AbstractPluginData.getSerializer(entry.key.javaClass)
-                val valSer = AbstractPluginData.getSerializer(entry.value.javaClass)
-                requireNotNull(keySer) { entry.key.javaClass.toString() + " does not have a serializer registered!" }
-                requireNotNull(valSer) { entry.value.javaClass.toString() + " does not have a serializer registered!" }
+                val keySer = AbstractPluginData.getSerializer(entry.key.javaClass) ?: throw getError(entry.key.javaClass.toString())
+                val valSer = AbstractPluginData.getSerializer(entry.value.javaClass) ?: throw getError(entry.value.javaClass.toString())
                 stream.writeString(entry.key.javaClass.name)
                 stream.writeString(entry.value.javaClass.name)
                 for (e in map.entries()) {
-                    val en = e as net.rwhps.server.struct.ObjectMap.Entry<*, *>
+                    val en = e as ObjectMap.Entry<*, *>
                     keySer.write(stream, en.key)
                     valSer.write(stream, en.value)
                 }
             }
 
             @Throws(IOException::class)
-            override fun read(stream: GameInputStream): net.rwhps.server.struct.OrderedMap<*, *>? {
+            override fun read(stream: GameInputStream): OrderedMap<*, *>? {
                 return try {
                     val size = stream.readInt()
-                    val map = net.rwhps.server.struct.OrderedMap<Any?, Any?>()
+                    val map = OrderedMap<Any?, Any?>()
                     if (size == 0) {
                         return map
                     }
                     val keySerName = stream.readString()
                     val valSerName = stream.readString()
-                    val keySer = AbstractPluginData.getSerializer(lookup(keySerName))
-                    val valSer = AbstractPluginData.getSerializer(lookup(valSerName))
-                    requireNotNull(keySer) { "$keySerName does not have a serializer registered!" }
-                    requireNotNull(valSer) { "$valSerName does not have a serializer registered!" }
+                    val keySer = AbstractPluginData.getSerializer(lookup(keySerName)) ?: throw getError(keySerName)
+                    val valSer = AbstractPluginData.getSerializer(lookup(valSerName)) ?: throw getError(valSerName)
                     for (i in 0 until size) {
                         val key = keySer.read(stream)
                         val `val` = valSer.read(stream)
@@ -267,5 +260,9 @@ internal object DefaultSerializers {
     @Throws(ClassNotFoundException::class)
     private fun lookup(name: String): Class<*> {
         return Class.forName(name)
+    }
+
+    fun getError(className: String): IllegalArgumentException {
+        return IllegalArgumentException("$className does not have a serializer registered!")
     }
 }

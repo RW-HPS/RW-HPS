@@ -9,32 +9,31 @@
 
 package net.rwhps.server.net
 
-import io.netty.bootstrap.Bootstrap
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.channel.*
+import io.netty.channel.Channel
+import io.netty.channel.ChannelOption
+import io.netty.channel.EventLoopGroup
+import io.netty.channel.ServerChannel
 import io.netty.channel.epoll.Epoll
 import io.netty.channel.epoll.EpollChannelOption
-import io.netty.channel.epoll.EpollEventLoopGroup
 import io.netty.channel.epoll.EpollServerSocketChannel
-import io.netty.channel.nio.NioEventLoopGroup
-import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
-import io.netty.util.concurrent.DefaultEventExecutorGroup
-import io.netty.util.concurrent.EventExecutorGroup
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
-import net.rwhps.server.net.code.rudp.PacketDecoderTest
 import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.handler.rudp.StartGameNetUdp
 import net.rwhps.server.net.handler.tcp.StartGameNetTcp
 import net.rwhps.server.net.handler.tcp.StartGamePortDivider
 import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
+import net.rwhps.server.util.log.Log.error
+import net.rwhps.server.util.threads.GetNewThreadPool.getEventLoopGroup
 import java.net.BindException
 import java.net.ServerSocket
-import net.rwhps.server.util.log.Log.error
+
 /**
  * NetGameServer Service
  * Open interfaces at least to the outside world, and try to integrate internally as much as possible
@@ -48,21 +47,19 @@ class StartNet {
     private val start: AbstractNet
     private var errorIgnore = false
 
-    internal val ioGroup: EventExecutorGroup = DefaultEventExecutorGroup(32)
-
     constructor() {
-        start = if (Data.config.WebGameBypassPort) StartGamePortDivider(this) else StartGameNetTcp(this)
+        start = if (Data.config.WebGameBypassPort) StartGamePortDivider() else StartGameNetTcp()
     }
 
     constructor(abstractNetClass: Class<out AbstractNet>) {
         val startNet: AbstractNet? =
             try {
-                net.rwhps.server.util.ReflectionUtils.accessibleConstructor(abstractNetClass,StartNet::class.java).newInstance(this)
+                ReflectionUtils.accessibleConstructor(abstractNetClass).newInstance()
             } catch (e: Exception) {
                 Log.fatal("[StartNet Load Error] Use default implementation",e)
                 null
             }
-        this.start = startNet ?:StartGameNetTcp(this)
+        this.start = startNet ?:StartGameNetTcp()
     }
 
     /**
@@ -103,8 +100,8 @@ class StartNet {
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childHandler(start)
 
-            val epoolStartThread = Epoll.isAvailable() && NetStaticData.ServerNetType.ordinal in IRwHps.NetType.RelayProtocol.ordinal..IRwHps.NetType.RelayMulticastProtocol.ordinal
-            if (epoolStartThread) {
+            val epollStartThread = Epoll.isAvailable() && NetStaticData.ServerNetType.ordinal in IRwHps.NetType.RelayProtocol.ordinal..IRwHps.NetType.RelayMulticastProtocol.ordinal
+            if (epollStartThread) {
                 child.option(EpollChannelOption.SO_REUSEPORT, true)
             }
 
@@ -115,7 +112,7 @@ class StartNet {
                 serverBootstrapTcp.bind(i)
             }
 
-            if (epoolStartThread) {
+            if (epollStartThread) {
                 val cpuNum = Runtime.getRuntime().availableProcessors()
                 for (i in 0 until cpuNum) {
                     serverBootstrapTcp.bind(port)
@@ -143,33 +140,6 @@ class StartNet {
         }
     }
 
-    fun startUdp(port: Int) {
-        val group = NioEventLoopGroup()
-        val bootstrap = Bootstrap()
-        bootstrap.group(group)
-            .channel(NioDatagramChannel::class.java)
-            .option(ChannelOption.SO_BROADCAST, true)
-            .handler(object : ChannelInitializer<NioDatagramChannel?>() {
-                @Throws(Exception::class)
-                override fun initChannel(nioDatagramChannel: NioDatagramChannel?) {
-                    if (nioDatagramChannel == null) {
-                        return
-                    }
-                    nioDatagramChannel.pipeline().addLast(PacketDecoderTest())
-                }
-            })
-        try {
-            //4.bind到指定端口，并返回一个channel，该端口就是监听UDP报文的端口
-            val channel: Channel = bootstrap.bind(port).sync().channel()
-            //5.等待channel的close
-            channel.closeFuture().sync()
-            //6.关闭group
-            group.shutdownGracefully()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
-    }
-
     /**
      * Get the number of connections
      * @return Int
@@ -182,13 +152,5 @@ class StartNet {
         errorIgnore = true
         connectChannel.eachAll { obj: Channel -> obj.close().sync() }
         errorIgnore = false
-    }
-
-    private fun getEventLoopGroup(size: Int = 0): EventLoopGroup {
-        return if (Epoll.isAvailable()) {
-            EpollEventLoopGroup(size)
-        } else {
-            NioEventLoopGroup(size)
-        }
     }
 }

@@ -14,17 +14,18 @@ import net.rwhps.server.data.json.Json
 import net.rwhps.server.dependent.LibraryManager
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
+import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
-import net.rwhps.server.util.zip.zip.ZipDecoder
 import java.io.File
 import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.util.*
 
 /**
+ * 在这里完成 插件的加载
  * @author RW-HPS/Dr
  */
 class PluginsLoad {
@@ -33,13 +34,15 @@ class PluginsLoad {
         val dataName = Seq<String>()
         val dataImport = Seq<PluginImportData>()
         for (file in jarFileList) {
-            val zip = ZipDecoder(file)
+            val zip = CompressionDecoderUtils.zip(file)
             try {
                 val imp = zip.getZipNameInputStream("plugin.json")
                 if (imp == null) {
                     error("Invalid jar file", file.name)
                     continue
                 }
+                // 读取 插件需要的 依赖
+                // 进行注入进服务端
                 val imports = zip.getZipNameInputStream("imports.json")
                 if (imports != null) {
                     val importsJson = Json(FileUtil.readFileString(imports)).getArraySeqData("imports")
@@ -74,6 +77,8 @@ class PluginsLoad {
                 zip.close()
             }
         }
+
+        // 检查是否加载了依赖插件
         var i = 0
         val count = dataImport.size
         while (i < count) {

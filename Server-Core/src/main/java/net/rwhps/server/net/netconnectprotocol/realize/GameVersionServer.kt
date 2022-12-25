@@ -38,6 +38,7 @@ import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import net.rwhps.server.util.encryption.Game
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.CommandHandler.CommandResponse
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
@@ -248,6 +249,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
         val o = GameOutputStream()
         o.writeString(reason)
         sendPacket(o.createPacket(PacketType.KICK))
+        Thread.sleep(100)
         disconnect()
     }
 
@@ -293,7 +295,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 }
             }
 
-            if (response == null || response.type == net.rwhps.server.util.game.CommandHandler.ResponseType.noCommand) {
+            if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
                 if (message.length > Data.config.MaxMessageLen) {
                     sendSystemMessage(Data.i18NBundle.getinput("message.maxLen"))
                     return
@@ -302,12 +304,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     Call.sendMessage(player, filterMessage)
                     Events.fire(PlayerChatEvent(player, filterMessage))
                 }
-            } else if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+            } else if (response.type != CommandHandler.ResponseType.valid) {
                 val text: String =  when (response.type) {
-                    net.rwhps.server.util.game.CommandHandler.ResponseType.manyArguments -> {
+                    CommandHandler.ResponseType.manyArguments -> {
                         "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                     }
-                    net.rwhps.server.util.game.CommandHandler.ResponseType.fewArguments -> {
+                    CommandHandler.ResponseType.fewArguments -> {
                         "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                     }
                     else -> {
@@ -424,7 +426,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 stream.getDecodeStream(false).use { checkList ->
                     checkList.readInt()
                     if (checkList.readInt() != GameEngine.netEngine.am.b.size) {
-                        Log.debug("RustedWarfare", "checkSumSize!=syncCheckList.size()")
+                        Log.debug("RustedWarfare", "checkSumSize!=syncCheckList.size()");
                     }
                     val checkTypeList: ArrayList<al> = GameEngine.netEngine.am.b as ArrayList<al>
                     for (checkType in checkTypeList) {
@@ -432,12 +434,12 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                         val client = checkList.readLong()
                         if (server != client) {
                             syncFlag = true
-                            Log.debug("RustedWarfare", "CheckType: ${checkType.a} Checksum: $intUnknown_A Server: $server Client: $client")
+                            Log.debug("RustedWarfare", "CheckType: ${checkType.a} Checksum: $intUnknown_A Server: $server Client: $client");
                         }
                         val tickServer = Data.game.tickGame.get()
                         if (tickServer >= intUnknown_A) {
-                            Log.debug("RustedWarfare", "Not marking desync, already resynced before tick: $tickServer <= $tick")
-                            return
+                            Log.debug("RustedWarfare", "Not marking desync, already resynced before tick: $tickServer <= $tick");
+                            return;
                         }
 
                     }
@@ -505,7 +507,8 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                 }
 
                 // Check Passwd
-                if ("" != Data.game.passwd) {
+                // TODO: 有可能被相同名字利用
+                if ("" != Data.game.passwd && GameData.checkHess(name)) {
                     if (passwd != Data.game.passwd) {
                         try {
                             sendErrorPasswd()
@@ -560,7 +563,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     player = Data.game.playerManage.addPlayer(this, uuid, name, localeUtil)
                 }
 
-                player.sendTeamData()
+                Call.sendTeamData()
                 sendServerInfo(true)
 
                 if (IsUtil.notIsBlank(Data.config.EnterAd)) {

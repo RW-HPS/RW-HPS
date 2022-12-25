@@ -8,6 +8,8 @@
  */
 package net.rwhps.server.util.game
 
+import net.rwhps.server.func.Cons
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 
 /**
@@ -15,8 +17,8 @@ import net.rwhps.server.struct.Seq
  */
 object Events {
     private val EVENTS =
-        net.rwhps.server.struct.ObjectMap<Any, Seq<net.rwhps.server.func.Cons<*>>>()
-    fun <T> on(type: Class<T>, listener: net.rwhps.server.func.Cons<T>) {
+        ObjectMap<Any, Seq<Cons<*>>>()
+    fun <T> on(type: Class<T>, listener: Cons<T>) {
         EVENTS[type, { Seq() }].add(listener)
     }
 
@@ -28,7 +30,7 @@ object Events {
         EVENTS[type, { Seq() }].clear()
     }
 
-    fun <T> remove(type: Class<T>, listener: net.rwhps.server.func.Cons<T>) {
+    fun <T> remove(type: Class<T>, listener: Cons<T>) {
         EVENTS[type, { Seq() }].remove(listener)
     }
 
@@ -39,10 +41,10 @@ object Events {
     @Suppress("UNCHECKED_CAST")
     fun <T> fire(type1: Class<*>, type: T) {
         if (EVENTS[type] != null) {
-            EVENTS[type]?.eachAll { e: net.rwhps.server.func.Cons<*> -> (e as net.rwhps.server.func.Cons<T>)[type] }
+            EVENTS[type]?.eachAll { e: Cons<*> -> (e as Cons<T>)[type] }
         }
         if (EVENTS[type1] != null) {
-            EVENTS[type1]?.eachAll { e: net.rwhps.server.func.Cons<*> -> (e as net.rwhps.server.func.Cons<T>)[type] }
+            EVENTS[type1]?.eachAll { e: Cons<*> -> (e as Cons<T>)[type] }
         }
     }
 }

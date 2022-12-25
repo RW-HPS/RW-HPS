@@ -2,6 +2,7 @@ package net.rwhps.server.game.simulation.pivatedata
 
 import com.corrodinggames.rts.game.n
 import net.rwhps.server.game.simulation.gameFramework.GameEngine
+import net.rwhps.server.util.WaitResultUtil
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.log.exp.ImplementedException
 
@@ -31,6 +32,6 @@ internal class PrivateClass_Player(private val playerData: n) {
 
     companion object {
         @Throws(ImplementedException.PlayerImplementedException::class)
-        internal fun getPlayerData(site: Int): PrivateClass_Player = PrivateClass_Player(n.k(site) ?: throw ImplementedException.PlayerImplementedException("[PlayerData-New] Player is invalid"))
+        internal fun getPlayerData(site: Int): PrivateClass_Player = WaitResultUtil.waitResult { PrivateClass_Player(n.k(site)) } ?: throw ImplementedException.PlayerImplementedException("[PlayerData-New] Player is invalid")
     }
 }

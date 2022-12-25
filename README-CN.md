@@ -1,8 +1,10 @@
 [Engilsh version / 英文介绍](README.md)
 
 # 新版本开发中
-- [ ] 使用 XVFB
-- [x] 使用 无头 Lwjgl
+- [x] 使用 无头 Lwjgl  
+  
+欢迎各位前来PR  
+目前我们正需要重构 (Event/Net/Docs), 欢迎提供更好的思路
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
@@ -99,9 +101,11 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 **游戏相关**
 - 基础的游戏
 - 游戏重连
+- 校验数据
 - 自定义地图
 - 保存的游戏
 - 正宗的Mods支持
+- Replay生成
 
 **扩展功能**
 - 加载插件
@@ -117,9 +121,7 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 </details>
 
 #### 目前待完成
-- [x] 模拟层
 - [ ] Vote (Bug :( )
-- [x] 1.15.P*
 - [ ] 热修改游戏进度
 - [ ] WEB面板
 
@@ -174,11 +176,11 @@ RW-HPS是一个Rusted Warfare游戏的服务端,用于在运行Java8的服务器
 ## 版本合集
 游戏对应最终服务端版本合集
 
-| 游戏版本 | RW-HPS版本 | 我要飞飞 |
-|:----:|:----:|:----:|
-|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                Delete                                 |
-| ~~1.15.P8~~  |     ~~6.0.1~~      |                                Delete                                |
-|     1.15     |      1.0.0-M2      | [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0-M2) |
+| 游戏版本 |      RW-HPS版本      |                                我要飞飞                                |
+|:----:|:------------------:|:------------------------------------------------------------------:|
+|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                               Delete                               |
+| ~~1.15.P8~~  |     ~~6.0.1~~      |                               Delete                               |
+|     1.15     |       1.0.0        |    [前往下载](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0)     |
 
 ## 赞助
 RW-HPS是AGPL v3授权的开放源码项目，完全免费使用。然而，如果没有适当的资金支持，为项目维护和开发新功能所需的工作量是不可持续的。  

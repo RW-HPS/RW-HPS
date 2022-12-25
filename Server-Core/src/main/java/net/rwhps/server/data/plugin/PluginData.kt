@@ -9,5 +9,5 @@
 
 package net.rwhps.server.data.plugin
 
-class PluginData() : net.rwhps.server.data.plugin.AutoSavePluginData() {
+class PluginData() : AutoSavePluginData() {
 }

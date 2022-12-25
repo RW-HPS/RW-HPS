@@ -9,8 +9,8 @@
 
 package net.rwhps.asm.api;
 
-import net.rwhps.asm.RedirectionManagerImpl;
 import net.rwhps.asm.transformer.AllMethodsTransformer;
+import net.rwhps.asm.RedirectionManagerImpl;
 
 public class RedirectionApi {
     private RedirectionApi() {

@@ -80,7 +80,7 @@ internal class PacketDecoder(private val socket: PackagingSocket) {
             return
         }
 
-        val packet = Packet(type,inputStream.readNBytes0(contentLength))
+        val packet = Packet(type,inputStream.readNBytes(contentLength))
 
         inputStream.removeOldRead()
 

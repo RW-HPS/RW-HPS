@@ -16,8 +16,10 @@ import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.netconnectprotocol.UniversalAnalysisOfGamePackages
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.StringFilteringUtil
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
 import java.util.stream.IntStream
@@ -64,13 +66,13 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 relayKickData = relay!!.admin!!.relayKickData
                 relayPlayersData = relay!!.admin!!.relayPlayersData
             } else {
-                relayKickData = net.rwhps.server.struct.ObjectMap()
-                relayPlayersData = net.rwhps.server.struct.ObjectMap()
+                relayKickData = ObjectMap()
+                relayPlayersData = ObjectMap()
             }
 
             relay!!.admin = this
             val o = GameOutputStream()
-            if (clientVersion >= 172) {
+            if (clientVersion >= version2) {
                 o.writeByte(2)
                 o.writeBoolean(true)
                 o.writeBoolean(true)
@@ -99,7 +101,6 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
             sendPacket(o.createPacket(PacketType.FORWARD_HOST_SET)) //+108+140
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay.server.admin.connect", Data.configRelayPublish.MainID+relay!!.id, Data.configRelayPublish.MainID+relay!!.internalID.toString()), "RELAY_CN-ADMIN", 5))
             sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(Data.i18NBundle.getinput("relay", Data.configRelayPublish.MainID+relay!!.id), "RELAY_CN-ADMIN", 5))
-            //ping();
 
             val nnn = StringFilteringUtil.filterChines(name)
 
@@ -125,7 +126,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 val target = inStream.readInt()
                 val type = inStream.readInt()
 
-                if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
+                if (IntStream.of(PacketType.DISCONNECT.typeInt).anyMatch { i: Int -> i == type }) {
                     return
                 }
 
@@ -146,17 +147,23 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                     PacketType.TEAM_LIST.typeInt -> {
                         if (!relay!!.isStartGame) {
                             abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
-                        } else {}
+                        }
+                        return
                     }
                     PacketType.RETURN_TO_BATTLEROOM.typeInt -> {
-                        relay!!.isStartGame = false
+                        if (relay!!.isStartGame) {
+                            relay!!.isStartGame = false
+                        }
+                        return
                     }
+
                     else -> {}
                 }
             }
         } catch (e: IOException) {
             e.printStackTrace()
         } catch (_: NullPointerException) {
+            /* 忽略 */
         }
     }
 
@@ -169,6 +176,7 @@ class GameVersionRelayRebroadcast(connectionAgreement: ConnectionAgreement) : Ga
                 abstractNetConnect?.sendPacket(lastSentPacket)
             }
         } catch (_: IOException) {
+            /* 忽略 */
         }
     }
 }

@@ -12,14 +12,8 @@ package net.rwhps.server.net.netconnectprotocol.realize
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.io.GameOutputStream
-import net.rwhps.server.io.packet.Packet
-import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.encryption.Game
-import net.rwhps.server.util.encryption.Sha
 import java.io.IOException
-import java.math.BigInteger
 
 /**
  * Provides support for most common packages for the server
@@ -67,38 +61,5 @@ class GameVersionPacketOld : GameVersionPacket() {
             // 延迟后显示 （HOST)
             writeInt(if (player.isAdmin) 1 else 0)
         }
-    }
-
-    @Throws(IOException::class)
-    override fun getPlayerConnectPacket(): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rwhps.forward")
-        out.writeInt(1)
-        out.writeInt(151)
-        out.writeInt(151)
-        return out.createPacket(PacketType.PREREGISTER_INFO_RECEIVE)
-    }
-
-    @Throws(IOException::class)
-    override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rts")
-        out.writeInt(4)
-        out.writeInt(151)
-        out.writeInt(151)
-        out.writeString(name)
-
-        if (IsUtil.isBlank(passwd)) {
-            out.writeBoolean(false)
-        } else {
-            out.writeBoolean(true)
-            out.writeString(BigInteger(1, Sha.sha256Array(passwd!!)).toString(16).uppercase())
-        }
-
-        out.writeString("com.corrodinggames.rts.java")
-        out.writeString(uuid)
-        out.writeInt(1198432602)
-        out.writeString(Game.connectKey(key))
-        return out.createPacket(PacketType.REGISTER_PLAYER)
     }
 }

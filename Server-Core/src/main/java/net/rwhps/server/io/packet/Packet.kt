@@ -11,6 +11,7 @@ package net.rwhps.server.io.packet
 
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
+import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.inline.toStringHex
 import net.rwhps.server.util.log.Log
@@ -81,7 +82,7 @@ class Packet {
          *   |  Type |Data length| Data
          *   +---------------+---------------+
          */
-        internal val serializer = object : net.rwhps.server.struct.SerializerTypeAll.TypeSerializer<Packet> {
+        internal val serializer = object : SerializerTypeAll.TypeSerializer<Packet> {
             @Throws(IOException::class)
             override fun write(stream: GameOutputStream, objectData: Packet) {
                 stream.writeInt(objectData.type.typeInt)

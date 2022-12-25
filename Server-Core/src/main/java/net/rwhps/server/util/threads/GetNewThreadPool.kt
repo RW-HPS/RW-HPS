@@ -9,6 +9,10 @@
 
 package net.rwhps.server.util.threads
 
+import io.netty.channel.EventLoopGroup
+import io.netty.channel.epoll.Epoll
+import io.netty.channel.epoll.EpollEventLoopGroup
+import io.netty.channel.nio.NioEventLoopGroup
 import java.util.concurrent.*
 
 /**
@@ -21,5 +25,13 @@ object GetNewThreadPool {
 
     fun getNewScheduledThreadPool(corePoolSize: Int, name: String): ScheduledExecutorService {
         return ScheduledThreadPoolExecutor(corePoolSize, ThreadFactoryName.nameThreadFactory(name))
+    }
+
+    fun getEventLoopGroup(size: Int = 0): EventLoopGroup {
+        return if (Epoll.isAvailable()) {
+            EpollEventLoopGroup(size)
+        } else {
+            NioEventLoopGroup(size)
+        }
     }
 }

@@ -9,16 +9,16 @@
 
 package net.rwhps.server.util
 
-import net.rwhps.server.util.io.IoRead
+import net.rwhps.server.util.compression.CompressionDecoderUtils
+import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
 import org.lionsoul.ip2region.DbConfig
 import org.lionsoul.ip2region.DbSearcher
 
 object IPCountry {
-    val searcher: DbSearcher
-    init {
-        searcher = DbSearcher(DbConfig(), IoRead.readInputStreamBytes(IPCountry::class.java.getResourceAsStream("/ip2region.db")!!))
-    }
+    private val searcher: DbSearcher = DbSearcher(DbConfig(),
+        CompressionDecoderUtils.lz77Stream(FileUtil.getInternalFileStream("/ip2region.7z"))
+            .getSpecifiedSuffixInThePackage("db",true)["ip2region.db"])
 
     fun test() {
         Log.clog(searcher.memorySearch("111.173.64.99").region.toString())

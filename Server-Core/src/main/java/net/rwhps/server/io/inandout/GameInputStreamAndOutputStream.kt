@@ -104,7 +104,7 @@ class GameInputStreamAndOutputStream : GameInputStream {
     @Throws(IOException::class)
     fun getDecodeStreamNoData(bl: Boolean): GameInputStreamAndOutputStream {
         readString()
-        val bytes = buffer.readNBytes0(super.readInt())
+        val bytes = buffer.readNBytes(super.readInt())
         return CompressInputStream.getGzipInputStreamAndOutputStream(bl, bytes)
     }
 
@@ -165,7 +165,7 @@ class GameInputStreamAndOutputStream : GameInputStream {
 
     @Throws(IOException::class)
     override fun readStreamBytes(): ByteArray {
-        return buffer.readNBytes0(readInt()).also { out.writeBytes(it) }
+        return buffer.readNBytes(readInt()).also { out.writeBytes(it) }
     }
 
     @Throws(IOException::class)

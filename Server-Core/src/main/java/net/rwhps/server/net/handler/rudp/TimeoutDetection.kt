@@ -33,9 +33,9 @@ internal class TimeoutDetection {
 
             return if (abstractNetConnect.inputPassword) {
                 /* 3min No response judgmentclose */
-                concurrentMillis() > abstractNetConnect.lastReceivedTime + 180 * 1000L
+                concurrentMillis() > (abstractNetConnect.lastReceivedTime + 180 * 1000L)
             } else {
-                concurrentMillis() > abstractNetConnect.lastReceivedTime + 300 * 1000L
+                concurrentMillis() > (abstractNetConnect.lastReceivedTime + 300 * 1000L)
             }
 
         }

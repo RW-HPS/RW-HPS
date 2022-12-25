@@ -9,6 +9,8 @@
 
 package net.rwhps.server.util.log
 
+import net.rwhps.server.struct.ObjectMap
+
 /**
  * @author RW-HPS/Dr
  */
@@ -42,8 +44,8 @@ internal object ColorCodes {
 
     init {
         //WIN :(
-
-        val map: net.rwhps.server.struct.ObjectMap<String, String> = net.rwhps.server.struct.ObjectMap.of(
+        val map: ObjectMap<String, String> = if (System.getProperty("rwhps.log.color","true").toBoolean()) {
+            ObjectMap.of(
                 "ff", FLUSH,
                 "fr", RESET,
                 "fb", BOLD,
@@ -69,6 +71,35 @@ internal object ColorCodes {
                 "by", BACK_YELLOW,
                 "bb", BACK_BLUE
             )
+        } else {
+            ObjectMap.of(
+                "ff", "",
+                "fr", "",
+                "fb", "",
+                "fi", "",
+                "fu", "",
+                "bk", "",
+                "r", "",
+                "g", "",
+                "y", "",
+                "b", "",
+                "p", "",
+                "c", "",
+                "lr", "",
+                "lg", "",
+                "ly", "",
+                "lm", "",
+                "lb", "",
+                "lc", "",
+                "w", "",
+                "bd", "",
+                "br", "",
+                "bg", "",
+                "by", "",
+                "bb", ""
+            )
+        }
+
 
         CODES = map.keys().toSeq().toArray(String::class.java)
         VALUES = map.values().toSeq().toArray(String::class.java)

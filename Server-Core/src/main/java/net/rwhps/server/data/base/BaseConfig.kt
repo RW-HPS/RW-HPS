@@ -11,10 +11,12 @@ package net.rwhps.server.data.base
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.struct.Seq
+import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.inline.toGson
 import net.rwhps.server.util.inline.toPrettyPrintingJson
 import net.rwhps.server.util.log.Log.debug
+import net.rwhps.server.util.log.Log.error
 import net.rwhps.server.util.log.Log.warn
 import java.lang.reflect.Field
 import net.rwhps.server.util.log.Log.error
@@ -108,7 +110,7 @@ data class BaseConfig(
         }
         if (MaxPlayer > 100) {
             warn("MaxPlayer > GameMaxPlayerSize , Reset !")
-            coverField("MaxPlayer",100)
+            //coverField("MaxPlayer",100)
         }
     }
 
@@ -118,7 +120,7 @@ data class BaseConfig(
 
     fun coverField(name: String,value: Any): Boolean {
         try {
-            val field: Field = net.rwhps.server.util.ReflectionUtils.findField(this::class.java, name) ?:return false
+            val field: Field = ReflectionUtils.findField(this::class.java, name) ?:return false
             field.isAccessible = true
             field.set(this,value)
             field.isAccessible = false

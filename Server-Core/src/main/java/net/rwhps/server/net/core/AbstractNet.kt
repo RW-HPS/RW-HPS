@@ -14,21 +14,24 @@ import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelPipeline
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.timeout.IdleStateHandler
-import net.rwhps.server.net.StartNet
+import io.netty.util.concurrent.EventExecutorGroup
 import net.rwhps.server.net.code.tcp.PacketDecoder
 import net.rwhps.server.net.code.tcp.PacketEncoder
 import net.rwhps.server.net.handler.tcp.AcceptorIdleStateTrigger
 import net.rwhps.server.net.handler.tcp.NewServerHandler
 import net.rwhps.server.util.log.exp.ImplementedException
+import net.rwhps.server.util.threads.GetNewThreadPool.getEventLoopGroup
 import java.util.concurrent.TimeUnit
 
 /**
  * @author RW-HPS/Dr
  */
 @Sharable
-open class AbstractNet(protected val startNet: StartNet): ChannelInitializer<SocketChannel>() {
+open class AbstractNet : ChannelInitializer<SocketChannel>() {
     private val idleStateTrigger: AcceptorIdleStateTrigger = AcceptorIdleStateTrigger()
     private var newServerHandler: NewServerHandler = NewServerHandler()
+    private val ioGroup: EventExecutorGroup = getEventLoopGroup(32)
+
 
     protected fun addTimeOut(channelPipeline: ChannelPipeline) {
         channelPipeline.addLast(IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
@@ -44,7 +47,7 @@ open class AbstractNet(protected val startNet: StartNet): ChannelInitializer<Soc
         channelPipeline.addLast(newServerHandler)
     }
     protected fun addNewServerHandlerExecutorGroup(channelPipeline: ChannelPipeline) {
-        channelPipeline.addLast(startNet.ioGroup,newServerHandler)
+        channelPipeline.addLast(ioGroup,newServerHandler)
     }
 
     internal fun getConnectSize(): Int {

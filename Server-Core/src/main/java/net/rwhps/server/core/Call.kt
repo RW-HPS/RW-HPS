@@ -23,6 +23,7 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -31,6 +32,12 @@ import net.rwhps.server.util.log.Log.error
  * @author RW-HPS/Dr
  */
 object Call {
+    /**
+     * 对指定玩家发送一条统一的消息
+     *
+     * @param player 玩家
+     * @param text 消息
+     */
     @JvmStatic
     fun sendMessage(player: Player, text: String) {
         try {
@@ -40,11 +47,25 @@ object Call {
         }
     }
 
+    /**
+     * 对指定玩家发送一条本地化的消息
+     *
+     * @param player 玩家
+     * @param text 消息
+     * @param obj 参数
+     */
     @JvmStatic
     fun sendMessageLocal(player: Player, text: String, vararg obj: Any) {
         Data.game.playerManage.playerGroup.eachAll { e: Player -> e.sendMessage(player, e.i18NBundle.getinput(text, *obj)) }
     }
 
+    /**
+     * 对指定队伍发送一条统一的消息
+     *
+     * @param team 队伍ID
+     * @param player Player
+     * @param text String
+     */
     @JvmStatic
     fun sendTeamMessage(team: Int, player: Player, text: String) {
         Data.game.playerManage.playerGroup.eachAllFind({ e: Player -> e.team == team }) { p: Player -> p.sendMessage(player, "[TEAM] $text") }
@@ -87,11 +108,17 @@ object Call {
         }
     }
 
+    /**
+     * 更新一次全部玩家Ping
+     */
     @JvmStatic
     fun sendPlayerPing() {
         Data.game.playerManage.playerGroup.eachAll { e: Player -> e.con!!.sendPing() }
     }
 
+    /**
+     * 检查一次全部玩家的数据
+     */
     @JvmStatic
     fun sendCheckData() {
         NetStaticData.groupNet.broadcast(GameData.getGameCheck())
@@ -210,7 +237,6 @@ object Call {
         private var forcedClose = false
 
         private val tick = Data.config.Tick
-        private val olinPlayer = Data.game.playerManage.playerGroup.size-1
 
         @Volatile
         private var forcedReturn = false
@@ -219,7 +245,7 @@ object Call {
         init {
             Threads.newTimedTask(CallTimeTask.AutoCheckTask,0,1,TimeUnit.SECONDS) {
                 var lastWinTeam: Int = -1
-                var lastWinCount: Int = 90
+                var lastWinCount = 90
                 Data.game.playerManage.runPlayerArrayDataRunnable(true) {
                     if (it == null) {
                         return@runPlayerArrayDataRunnable
@@ -232,7 +258,7 @@ object Call {
                 if (lastWinCount == 1) {
                     val last = Data.game.playerManage.getPlayersNameOnTheSameTeam(lastWinTeam).toArray(String::class.java).contentToString()
                     Log.clog("Last Win Player: {0}",last)
-                    Call.sendSystemMessageLocal("survive.player",last)
+                    sendSystemMessageLocal("survive.player",last)
                     Threads.closeTimeTask(CallTimeTask.AutoCheckTask)
                 }
                 Data.game.playerManage.updateControlIdentifier()
@@ -259,35 +285,30 @@ object Call {
 
         override fun run() {
             // 检测人数是否符合Gameover
-            val playerSize = Data.game.playerManage.playerGroup.size
-            if (playerSize == 0) {
-                gr()
-                return
-            }
 
-            if (playerSize <= 1) {
-                if (oneSay) {
+            when (Data.game.playerManage.playerGroup.size) {
+                0 -> gr()
+                1,2 -> if (oneSay) {
                     oneSay = false
                     sendSystemMessageLocal("gameOver.oneMin")
                     newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) {gr()}
                 }
-            } else {
-                if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
-                    oneSay = true
-                    Threads.closeTimeTask(CallTimeTask.GameOverTask)
+                else -> {
+                    if (Threads.containsTimeTask(CallTimeTask.GameOverTask)) {
+                        oneSay = true
+                        Threads.closeTimeTask(CallTimeTask.GameOverTask)
+                    }
                 }
             }
 
-            if (Data.config.MaxGameIngTime != -1) {
-                if (Time.concurrentSecond() > Data.game.endTime) {
-                    if (!forcedClose) {
-                        sendSystemMessageLocal("gameOver.forced")
-                    }
-                    forcedClose = true
-                    if (Time.concurrentSecond() > Data.game.endTime + 60) {
-                        gr()
-                        return
-                    }
+            if (Data.config.MaxGameIngTime != -1 && Time.concurrentSecond() > Data.game.endTime) {
+                if (!forcedClose) {
+                    sendSystemMessageLocal("gameOver.forced")
+                }
+                forcedClose = true
+                if (Time.concurrentSecond() > Data.game.endTime + 60) {
+                    gr()
+                    return
                 }
             }
 

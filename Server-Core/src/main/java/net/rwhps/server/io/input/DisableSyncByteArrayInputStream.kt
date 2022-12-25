@@ -165,13 +165,13 @@ open class DisableSyncByteArrayInputStream : InputStream {
         return readLen
     }
 
-    internal fun readAllBytes0(): ByteArray {
+    override fun readAllBytes(): ByteArray {
         val result = buf.copyOfRange(pos, count)
         pos = count
         return result
     }
 
-    internal fun readNBytes0(len: Int): ByteArray {
+    override fun readNBytes(len: Int): ByteArray {
         if ((count - pos) >= len) {
             val result = buf.copyOfRange(pos, pos+len)
             pos += len
@@ -181,13 +181,13 @@ open class DisableSyncByteArrayInputStream : InputStream {
         }
     }
 
-    internal fun readNBytes0(b: ByteArray, off: Int, len: Int): Int {
+    override fun readNBytes(b: ByteArray, off: Int, len: Int): Int {
         val n = read(b, off, len)
         return if (n == EOF) 0 else n
     }
 
     @Throws(IOException::class)
-    internal fun transferTo0(out: OutputStream): Long {
+    override fun transferTo(out: OutputStream): Long {
         val len = count - pos
         out.write(buf, pos, len)
         pos = count
@@ -279,12 +279,15 @@ open class DisableSyncByteArrayInputStream : InputStream {
     }
 
     /**
-     * Closing a `ByteArrayInputStream` has no effect. The methods in
-     * this class can be called after the stream has been closed without
-     * generating an `IOException`.
+     * Closing a `ByteArrayInputStream` has no effect.
+     * The methods in this class can be called after the stream has been closed without generating an `IOException`.
      */
     @Throws(IOException::class)
     override fun close() {
+        /*
+         * Same as [java.io.ByteArrayInputStream]
+         * Methods in this class can be called after the stream has been closed without throwing `IOException`.
+         */
     }
 
     private fun checkFromIndexSize(fromIndex: Int,size: Int,length: Int): Int {

@@ -170,12 +170,16 @@ abstract class AbstractByteArrayOutputStream : OutputStream() {
     abstract fun size(): Int
 
     /**
-     * 他和 [java.io.ByteArrayOutputStream] 一样
-     * 此类中的方法可以在流关闭后调用，而不会抛出 `IOException`.
-     * @throws IOException 不会出现Error（此方法不应声明此异常 但由于向后兼容 现在必须这样做）
+     * Close Stream
+     *
+     * @throws IOException No Error will be raised (this method should not declare this exception but must now due to backwards compatibility)
      */
     @Throws(IOException::class)
     override fun close() {
+        /*
+         * Same as [java.io.ByteArrayOutputStream]
+         * Methods in this class can be called after the stream has been closed without throwing `IOException`.
+         */
     }
 
     /**

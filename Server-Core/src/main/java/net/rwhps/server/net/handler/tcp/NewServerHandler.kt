@@ -21,6 +21,7 @@ import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log.debug
+import net.rwhps.server.util.log.Log.error
 
 @Sharable
 internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
@@ -49,6 +50,7 @@ internal class NewServerHandler : SimpleChannelInboundHandler<Any?>() {
                     val newConnectEvent = NewConnectEvent(connectionAgreement)
                     Events.fire(newConnectEvent)
                     if (newConnectEvent.result) {
+                        type.abstractNetConnect.disconnect()
                         return
                     }
                 }

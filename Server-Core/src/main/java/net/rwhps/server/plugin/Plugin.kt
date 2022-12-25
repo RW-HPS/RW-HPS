@@ -13,6 +13,7 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.plugin.event.AbstractGlobalEvent
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.game.CommandHandler
 import java.util.*
 
 /**
@@ -51,23 +52,23 @@ abstract class Plugin {
      * 注册要在服务器端使用的Core命令，例如从控制台
      * 这里注册的命令无论启动什么协议 都会存在
      */
-    open fun registerCoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {}
+    open fun registerCoreCommands(handler: CommandHandler) {}
     /**
      * 注册要在服务器端使用的Server命令，例如从控制台-Server
      * 这里注册的命令只有启动Server协议 才会存在
      */
-    open fun registerServerCommands(handler: net.rwhps.server.util.game.CommandHandler) {}
+    open fun registerServerCommands(handler: CommandHandler) {}
     /**
      * 注册要在服务器端使用的Relay命令，例如从控制台-Relay
      * 这里注册的命令只有启动Relay协议 才会存在
      */
-    open fun registerRelayCommands(handler: net.rwhps.server.util.game.CommandHandler) {}
+    open fun registerRelayCommands(handler: CommandHandler) {}
 
 
     /** 注册要在客户端使用的任何命令，例如来自游戏内玩家 -3  */
-    open fun registerServerClientCommands(handler: net.rwhps.server.util.game.CommandHandler) {}
+    open fun registerServerClientCommands(handler: CommandHandler) {}
     /** 注册要在客户端使用的RELAY命令，例如来自RELAY内玩家 -3  */
-    open fun registerRelayClientCommands(handler: net.rwhps.server.util.game.CommandHandler) {}
+    open fun registerRelayClientCommands(handler: CommandHandler) {}
 
     /**
      * 注册事件

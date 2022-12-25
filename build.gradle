@@ -1,16 +1,16 @@
 buildscript {
     ext.kotlin_version = '1.7.20'
-    repositories {
-        mavenCentral()
-    }
+
+	repositories{
+		mavenCentral()
+	}
+
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 plugins {
 	id("org.jetbrains.kotlin.jvm") version "1.7.20"
-	//id "org.tabooproject.shrinkingkt" version "1.0.2"
-	//id("me.him188.maven-central-publish") version "1.0.0-dev-3"
 
 }
 apply plugin: 'kotlin'
@@ -20,29 +20,30 @@ allprojects {
 	apply plugin: "org.jetbrains.kotlin.jvm"
 	apply plugin: "maven-publish"
 
+
 	repositories{
-		maven{ url "https://maven.aliyun.com/nexus/content/groups/public/"}
+		mavenCentral()
 		maven{ url "https://jitpack.io" }
 		maven { url "https://plugins.gradle.org/m2/" }
-		//maven { url "https://repo.spongepowered.org/repository/maven-public/" }
-		mavenCentral()
+		maven{ url "https://maven.aliyun.com/repository/public"}
+		maven{ url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/"}
 	}
 
-	/* 使用Java8做标准语法并编译 */
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	/* 使用Java11做标准语法并编译 */
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
 
 	compileKotlin {
-		kotlinOptions.jvmTarget = "1.8"
+		kotlinOptions.jvmTarget = JavaVersion.VERSION_11
 	}
 	compileTestKotlin {
-		kotlinOptions.jvmTarget = "1.8"
+		kotlinOptions.jvmTarget = JavaVersion.VERSION_11
 	}
 
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
-		//options.compilerArgs << "-Xlint:unchecked" << "-Werror"
-		//options.compilerArgs << "-Xdiags:verbose" << "-Werror"
-		//options.compilerArgs << "-Xlint:deprecation" << "-Werror"
+		options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+		options.compilerArgs << "-Xdiags:verbose" << "-Werror"
+		options.compilerArgs << "-Xlint:deprecation" << "-Werror"
 	}
 }

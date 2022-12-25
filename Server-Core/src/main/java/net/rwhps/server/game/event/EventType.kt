@@ -10,7 +10,6 @@
 package net.rwhps.server.game.event
 
 import net.rwhps.server.data.player.Player
-import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 
 /**
  * @author RW-HPS/Dr
@@ -21,21 +20,6 @@ class EventType {
 
     /** 玩家重连  */
     class PlayerReJoinEvent(val player: Player)
-
-    /** 玩家连接密码验证. */
-    class PlayerConnectPasswdCheckEvent(
-        /** 游戏实现协议  */
-        val abstractNetConnect: GameVersionServer,
-        /** 密码SHA256的16进  */
-        val passwd: String) {
-        /** 密码SHA256的16进  */
-        @JvmField
-        var result = false
-
-        /** 你可以给他设置一个名字  */
-        @JvmField
-        var name = ""
-    }
 
     /** 玩家连接时. */
     class PlayerConnectEvent(val player: Player)
@@ -48,6 +32,8 @@ class EventType {
 
     /** 开始游戏  */
     class GameStartEvent
+    /** 无头开始游戏  */
+    class HessStartEvent()
 
     /** 结束游戏  */
     class GameOverEvent

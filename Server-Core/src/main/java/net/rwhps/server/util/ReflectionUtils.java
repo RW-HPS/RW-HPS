@@ -21,7 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Simple utility class for working with the reflection API and handling
  * reflection exceptions.
- * <p>Only intended for internal use.
+ *
+ * Only intended for internal use.
  */
 public abstract class ReflectionUtils {
     /**

@@ -49,14 +49,6 @@ internal class PluginEventManage {
                     p.registerPlayerReJoinEvent(e.player)
                 }
             }
-            /* Sync */
-            Events.on(PlayerConnectPasswdCheckEvent::class.java) { e: PlayerConnectPasswdCheckEvent ->
-                pluginEventData.eachAll { p: AbstractEvent ->
-                    val strings = p.registerPlayerConnectPasswdCheckEvent(e.abstractNetConnect, e.passwd)
-                    e.result = strings[0].toBoolean()
-                    e.name = strings[1]
-                }
-            }
 
             /* ASync */
             Events.on(PlayerConnectEvent::class.java) { e: PlayerConnectEvent ->
@@ -82,20 +74,18 @@ internal class PluginEventManage {
                     }
                 }
             }
-            /* ASync */
+            /* Sync */
             Events.on(GameStartEvent::class.java) { _: GameStartEvent? ->
-                executorService.execute {
-                    pluginEventData.eachAll { obj: AbstractEvent ->
-                        obj.registerGameStartEvent()
-                    }
-                }
+                pluginEventData.eachAll(AbstractEvent::registerGameStartEvent)
             }
-            /* ASync */
+            /* Sync */
+            Events.on(HessStartEvent::class.java) { _: HessStartEvent? ->
+                pluginEventData.eachAll(AbstractEvent::registerHessStartEvent)
+            }
+            /* Sync */
             Events.on(GameOverEvent::class.java) { _: GameOverEvent? ->
                 if (Data.game.isGameover) {
-                    pluginEventData.eachAll { obj: AbstractEvent ->
-                        obj.registerGameOverEvent()
-                    }
+                    pluginEventData.eachAll(AbstractEvent::registerGameOverEvent)
                 }
             }
             /* ASync */
@@ -135,17 +125,13 @@ internal class PluginEventManage {
         private fun registerGlobalEventAll() {
             /* Sync */
             Events.on(GameLibLoadEvent::class.java) { _: GameLibLoadEvent ->
-                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
-                    obj.registerGameLibLoadEvent()
-                }
+                pluginGlobalEventData.eachAll(AbstractGlobalEvent::registerGameLibLoadEvent)
             }
 
             /* Sync */
             // 不应该 ASync 避免部分配置未加载
             Events.on(ServerLoadEvent::class.java) { _: ServerLoadEvent ->
-                pluginGlobalEventData.eachAll { obj: AbstractGlobalEvent ->
-                    obj.registerServerLoadEvent()
-                }
+                pluginGlobalEventData.eachAll(AbstractGlobalEvent::registerServerLoadEvent)
             }
 
             Events.on(ServerStartTypeEvent::class.java) { e: ServerStartTypeEvent ->

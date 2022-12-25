@@ -19,6 +19,7 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.mods.ModManage
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.GameMaps
 import net.rwhps.server.game.event.EventType.GameOverEvent
 import net.rwhps.server.game.event.EventType.PlayerBanEvent
@@ -26,15 +27,17 @@ import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Font16
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.Time.getTimeFutureMillis
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import net.rwhps.server.util.log.Log.error
 /**
  * @author RW-HPS/Dr
  */
-internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler) {
-    private fun registerPlayerCommand(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+internal class ServerCommands(handler: CommandHandler) {
+    private fun registerPlayerCommand(handler: CommandHandler) {
+        handler.register("say", "<text...>", "serverCommands.say") { arg: Array<String>, _: StrCons ->
             val response = StringBuilder(arg[0])
             var i = 1
             val lens = arg.size
@@ -50,10 +53,10 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             }
             sendSystemMessage(response.toString().replace("<>", ""))
         }
-        handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: net.rwhps.server.func.StrCons ->
+        handler.register("gameover", "serverCommands.gameover") { _: Array<String>?, _: StrCons ->
             Events.fire(GameOverEvent())
         }
-        handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("admin", "<add/remove> <PlayerPosition> [SpecialPermissions]", "serverCommands.admin") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
                 log[localeUtil.getinput("err.startGame")]
                 return@register
@@ -85,18 +88,18 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
                 log["Changed admin status of player: {0}", player.name]
             }
         }
-        handler.register("clearbanall", "serverCommands.clearbanall") { _: Array<String>?, _: net.rwhps.server.func.StrCons ->
+        handler.register("clearbanall", "serverCommands.clearbanall") { _: Array<String>?, _: StrCons ->
             Data.core.admin.bannedIPs.clear()
             Data.core.admin.bannedUUIDs.clear()
         }
-        handler.register("ban", "<PlayerSerialNumber>", "serverCommands.ban") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("ban", "<PlayerSerialNumber>", "serverCommands.ban") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
             val player = Data.game.playerManage.getPlayerArray(site)
             if (player != null) {
                 Events.fire(PlayerBanEvent(player))
             }
         }
-        handler.register("mute", "<PlayerSerialNumber> [Time(s)]", "serverCommands.mute") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("mute", "<PlayerSerialNumber> [Time(s)]", "serverCommands.mute") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
             val player = Data.game.playerManage.getPlayerArray(site)
             if (player != null) {
@@ -104,7 +107,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
                 player.muteTime = getTimeFutureMillis(43200 * 1000L)
             }
         }
-        handler.register("kick", "<PlayerSerialNumber> [time]", "serverCommands.kick") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("kick", "<PlayerSerialNumber> [time]", "serverCommands.kick") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
             val player = Data.game.playerManage.getPlayerArray(site)
             if (player != null) {
@@ -118,18 +121,18 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
                 }
             }
         }
-        handler.register("isafk", "<off/on>", "serverCommands.isAfk") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("isafk", "<off/on>", "serverCommands.isAfk") { arg: Array<String>, _: StrCons ->
             if (Data.config.OneAdmin) {
                 Data.game.isAfk = "on" == arg[0]
             }
         }
-        handler.register("maplock", "<off/on>", "serverCommands.maplock") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("maplock", "<off/on>", "serverCommands.maplock") { arg: Array<String>, _: StrCons ->
             Data.game.mapLock = "on" == arg[0]
         }
-        handler.register("dogfightlock", "<off/on>", "serverCommands.dogfightLock") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("dogfightlock", "<off/on>", "serverCommands.dogfightLock") { arg: Array<String>, _: StrCons ->
             Data.game.dogfightLock = "on" == arg[0]
         }
-        handler.register("kill", "<PlayerSerialNumber>", "serverCommands.kill") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("kill", "<PlayerSerialNumber>", "serverCommands.kill") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
                 val site = arg[0].toInt() - 1
                 val player = Data.game.playerManage.getPlayerArray(site)
@@ -140,7 +143,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
                 log[localeUtil.getinput("err.noStartGame")]
             }
         }
-        handler.register("giveadmin", "<PlayerSerialNumber...>", "serverCommands.giveadmin") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("giveadmin", "<PlayerSerialNumber...>", "serverCommands.giveadmin") { arg: Array<String>, _: StrCons ->
             Data.game.playerManage.playerGroup.eachAllFind(
                 { p: Player -> p.isAdmin }) { i: Player ->
                 val player = Data.game.playerManage.getPlayerArray(arg[0].toInt())
@@ -152,11 +155,11 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
                 }
             }
         }
-        handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: net.rwhps.server.func.StrCons ->
+        handler.register("clearmuteall", "serverCommands.clearmuteall") { _: Array<String>?, _: StrCons ->
             Data.game.playerManage.playerGroup.eachAll { e: Player -> e.muteTime = 0 }
         }
 
-        handler.register("turnstoneintogold", "<PlayerSerialNumber>", "# turnstoneintogold") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("turnstoneintogold", "<PlayerSerialNumber>", "# turnstoneintogold") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
             val player = Data.game.playerManage.getPlayerArray(site)
             if (player != null) {
@@ -165,8 +168,8 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
         }
     }
 
-    private fun registerPlayerStatusCommand(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("players", "serverCommands.players") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+    private fun registerPlayerStatusCommand(handler: CommandHandler) {
+        handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
             if (Data.game.playerManage.playerGroup.size == 0) {
                 log["No players are currently in the server."]
             } else {
@@ -188,7 +191,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             }
         }
 
-        handler.register("admins", "serverCommands.admins") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("admins", "serverCommands.admins") { _: Array<String>?, log: StrCons ->
             if (Data.core.admin.playerAdminData.size == 0) {
                 log["No admins are currently in the server."]
             } else {
@@ -208,7 +211,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             }
         }
 
-        handler.register("reloadmods", "serverCommands.reloadmods") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("reloadmods", "serverCommands.reloadmods") { _: Array<String>?, log: StrCons ->
             if (Data.game.isStartGame) {
                 log[Data.i18NBundle.getinput("err.startGame")]
             } else {
@@ -217,7 +220,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             }
 
         }
-        handler.register("reloadmaps", "serverCommands.reloadmaps") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("reloadmaps", "serverCommands.reloadmaps") { _: Array<String>?, log: StrCons ->
             val size = Data.game.mapsData.size
             Data.game.mapsData.clear()
             Data.game.checkMaps()
@@ -226,8 +229,8 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
         }
     }
 
-    private fun registerPlayerCustomEx(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("summon", "<unitName> <x> <y> [index(NeutralByDefault)]", "serverCommands.summon") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+    private fun registerPlayerCustomEx(handler: CommandHandler) {
+        handler.register("summon", "<unitName> <x> <y> [index(NeutralByDefault)]", "serverCommands.summon") { arg: Array<String>, log: StrCons ->
             if (!Data.game.isStartGame) {
                 log[localeUtil.getinput("err.noStartGame")]
                 return@register
@@ -247,7 +250,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             Data.game.gameCommandCache.add(NetStaticData.RwHps.abstractNetPacket.gameSummonPacket(index,arg[0],arg[1].toFloat(),arg[2].toFloat()))
         }
 
-        handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("changemap", "<MapNumber...>", "serverCommands.changemap") { arg: Array<String>, log: StrCons ->
             if (Data.game.isStartGame) {
                 log["游戏开始"]
                 return@register
@@ -284,7 +287,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             upDataGameData(false)
         }
 
-        handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("textbuild", "<UnitName> <Text> [index(NeutralByDefault)]", "serverCommands.textbuild") { arg: Array<String>, _: StrCons ->
             val cache = Seq<Array<ByteArray>>()
 
             arg[1].forEach {
@@ -322,7 +325,7 @@ internal class ServerCommands(handler: net.rwhps.server.util.game.CommandHandler
             }
         }
 
-        handler.register("addmoney", "<PlayerSerialNumber> <money>", "serverCommands.addmoney") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("addmoney", "<PlayerSerialNumber> <money>", "serverCommands.addmoney") { arg: Array<String>, log: StrCons ->
             if (!Data.game.isStartGame) {
                 log[localeUtil.getinput("err.noStartGame")]
                 return@register

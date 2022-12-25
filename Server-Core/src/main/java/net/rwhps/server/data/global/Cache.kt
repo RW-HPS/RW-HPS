@@ -10,8 +10,9 @@
 package net.rwhps.server.data.global
 
 import net.rwhps.server.io.packet.Packet
+import net.rwhps.server.struct.ObjectMap
 
 object Cache {
     @JvmStatic
-    val packetCache: net.rwhps.server.struct.ObjectMap<String, Packet> = net.rwhps.server.struct.ObjectMap(8)
+    val packetCache: ObjectMap<String, Packet> = ObjectMap(8)
 }

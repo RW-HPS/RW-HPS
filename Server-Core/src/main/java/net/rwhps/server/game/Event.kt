@@ -10,20 +10,21 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.core.Call
+import net.rwhps.server.core.NetServer
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.game.event.EventType
+import net.rwhps.server.game.simulation.gameFramework.GameData
 import net.rwhps.server.net.Administration.PlayerInfo
-import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import net.rwhps.server.plugin.event.AbstractEvent
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.Time.millis
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.log.Log.debug
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import net.rwhps.server.util.log.Log.error
@@ -36,7 +37,7 @@ class Event : AbstractEvent {
             player.kickPlayer(player.getinput("kick.name.failed"))
             return
         }
-        if (player.name == Data.headlessName && Data.game.playerManage.playerGroup.size > 1) {
+        if (GameData.checkHess(player.name)) {
             player.kickPlayer("Forbidden name")
             return
         }
@@ -118,20 +119,6 @@ class Event : AbstractEvent {
         // ConnectServer("127.0.0.1",5124,player.con)
     }
 
-    override fun registerPlayerConnectPasswdCheckEvent(abstractNetConnect: GameVersionServer, passwd: String): Array<String> {
-        if ("" != Data.game.passwd) {
-            if (passwd != Data.game.passwd) {
-                try {
-                    abstractNetConnect.sendErrorPasswd()
-                } catch (ioException: IOException) {
-                    debug("Event Passwd", ioException)
-                }
-                return arrayOf("true", "")
-            }
-        }
-        return arrayOf("false", "")
-    }
-
     override fun registerPlayerLeaveEvent(player: Player) {
         if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 1) {
             try {
@@ -174,7 +161,7 @@ class Event : AbstractEvent {
         if (Data.game.maps.mapData != null) {
             Data.game.maps.mapData!!.clean()
         }
-        net.rwhps.server.core.NetServer.reLoadServer()
+        NetServer.reLoadServer()
         System.gc()
     }
 

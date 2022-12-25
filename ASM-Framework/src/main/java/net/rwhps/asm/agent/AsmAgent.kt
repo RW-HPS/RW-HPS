@@ -64,6 +64,7 @@ class AsmAgent : ClassFileTransformer {
         /**
          * 加入 指定 Class 的指定方法代理
          *
+         *
          * @param desc String
          * @param p Array<String>
          * @param redirection Redirection
@@ -77,11 +78,12 @@ class AsmAgent : ClassFileTransformer {
                 partialMethod[desc] = ArrayList<Array<String>>().also { it.add(p) }
             }
             redirection?.let {
-                AsmRedirections.redirect(desc+";"+p[0]+p[1], it)
+                // 这里构造 Desc 并且 加入对应的 取代
+                AsmRedirections.redirect("L"+desc+";"+p[0]+p[1], it)
             }
         }
 
-        fun agentmain(args: String?, instrumentation: Instrumentation) {
+        fun agentmain(instrumentation: Instrumentation) {
             instrumentation.addTransformer(AsmAgent())
         }
     }

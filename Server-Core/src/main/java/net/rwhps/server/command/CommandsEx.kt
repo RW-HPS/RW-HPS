@@ -17,13 +17,14 @@ import net.rwhps.server.net.StartNet
 import net.rwhps.server.net.core.IRwHps.NetType.*
 import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.game.CommandHandler
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * @author RW-HPS/Dr
  */
-class CommandsEx(handler: net.rwhps.server.util.game.CommandHandler) {
-    private fun registerCore(handler: net.rwhps.server.util.game.CommandHandler) {
+class CommandsEx(handler: CommandHandler) {
+    private fun registerCore(handler: CommandHandler) {
         handler.register("hi", "") { _: Array<String>?, con: AbstractNetConnect ->
             val out = GameOutputStream()
 
@@ -74,8 +75,6 @@ class CommandsEx(handler: net.rwhps.server.util.game.CommandHandler) {
 
                     out.writeString("RoomAllSize")
                     out.writeInt(Relay.roomAllSize)
-                    out.writeString("RoomPublicListSize")
-                    out.writeInt(Relay.roomPublicSize)
                     out.writeString("RoomNoStartSize")
                     out.writeInt(Relay.roomNoStartSize)
                 }

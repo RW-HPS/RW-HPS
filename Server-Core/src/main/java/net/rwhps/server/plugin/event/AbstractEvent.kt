@@ -10,63 +10,56 @@
 package net.rwhps.server.plugin.event
 
 import net.rwhps.server.data.player.Player
-import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 
 interface AbstractEvent {
     /**
      * 玩家加入 [同步-Synchronization]
      * @param player Player
      */
-    fun registerPlayerJoinEvent(player: Player) {}
+    fun registerPlayerJoinEvent(player: Player) { /* Optional use of plugins */ }
 
     /**
      * 玩家重连 [同步-Synchronization]
      * @param player Player
      */
-    fun registerPlayerReJoinEvent(player: Player) {}
-
-    /**
-     * 玩家连接密码验证 [同步-Synchronization]
-     * @param abstractNetConnect 游戏实现协议
-     * @param passwd 密码SHA256的16进
-     * @return String[0]=密码是否正确(Boolean) String[1]=你可以给他设置一个名字
-     */
-    fun registerPlayerConnectPasswdCheckEvent(abstractNetConnect: GameVersionServer, passwd: String): Array<String> = arrayOf("false", "")
+    fun registerPlayerReJoinEvent(player: Player) { /* Optional use of plugins */ }
 
     /**
      * 玩家连接时 [异步-ASync]
      * @param player Player
      */
-    fun registerPlayerConnectEvent(player: Player) {}
+    fun registerPlayerConnectEvent(player: Player) { /* Optional use of plugins */ }
 
     /**
      * 玩家离开时 [异步-ASync]
      * @param player Player
      */
-    fun registerPlayerLeaveEvent(player: Player) {}
+    fun registerPlayerLeaveEvent(player: Player) { /* Optional use of plugins */ }
 
     /**
      * 玩家发言时 [异步-ASync]
      * @param player
      * @param message
      */
-    fun registerPlayerChatEvent(player: Player, message: String) {}
+    fun registerPlayerChatEvent(player: Player, message: String) { /* Optional use of plugins */ }
 
-    /** 开始游戏 [异步-ASync]  */
-    fun registerGameStartEvent() {}
+    /** 开始游戏 [同步-ASync]  */
+    fun registerGameStartEvent() { /* Optional use of plugins */ }
+    /** 无头开始游戏 [同步-Synchronization] */
+    fun registerHessStartEvent() { /* Optional use of plugins */ }
 
-    /** 结束游戏 [异步-ASync]  */
-    fun registerGameOverEvent() {}
+    /** 结束游戏 [同步-ASync]  */
+    fun registerGameOverEvent() { /* Optional use of plugins */ }
 
     /** 玩家被ban [异步-ASync]  */
-    fun registerPlayerBanEvent(player: Player) {}
+    fun registerPlayerBanEvent(player: Player) { /* Optional use of plugins */ }
 
     /** 玩家被解除ban [异步-ASync]  */
-    fun registerPlayerUnbanEvent(player: Player) {}
+    fun registerPlayerUnbanEvent(player: Player) { /* Optional use of plugins */ }
 
     /** 玩家被banIp [异步-ASync]  */
-    fun registerPlayerIpBanEvent(player: Player) {}
+    fun registerPlayerIpBanEvent(player: Player) { /* Optional use of plugins */ }
 
     /** 玩家被解banIp [异步-ASync]  */
-    fun registerPlayerIpUnbanEvent(ip: String) {}
+    fun registerPlayerIpUnbanEvent(ip: String) { /* Optional use of plugins */ }
 }

@@ -12,6 +12,7 @@ package net.rwhps.server.dependent.redirections.slick
 import net.rwhps.asm.api.Redirection
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.dependent.redirections.lwjgl.LwjglProperties
+import net.rwhps.server.util.ReflectionUtils
 import org.newdawn.slick.AppGameContainer
 import java.lang.reflect.Method
 
@@ -30,13 +31,13 @@ class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = 
         val appGameContainer = obj as AppGameContainer
         try {
             if (methodSetup == null) {
-                methodSetup = net.rwhps.server.util.ReflectionUtils.findMethod(AppGameContainer::class.java,"setup").also { net.rwhps.server.util.ReflectionUtils.makeAccessible(it) }
+                methodSetup = ReflectionUtils.findMethod(AppGameContainer::class.java,"setup").also { ReflectionUtils.makeAccessible(it) }
             }
             if (methodGetDelta == null) {
-                methodGetDelta = net.rwhps.server.util.ReflectionUtils.findMethod(AppGameContainer::class.java,"getDelta").also { net.rwhps.server.util.ReflectionUtils.makeAccessible(it) }
+                methodGetDelta = ReflectionUtils.findMethod(AppGameContainer::class.java,"getDelta").also { ReflectionUtils.makeAccessible(it) }
             }
             if (methodGameLoop == null) {
-                methodGameLoop = net.rwhps.server.util.ReflectionUtils.findMethod(AppGameContainer::class.java,"gameLoop").also { net.rwhps.server.util.ReflectionUtils.makeAccessible(it) }
+                methodGameLoop = ReflectionUtils.findMethod(AppGameContainer::class.java,"gameLoop").also { ReflectionUtils.makeAccessible(it) }
             }
 
             methodSetup?.invoke(appGameContainer)
@@ -48,7 +49,7 @@ class AppGameContainerUpdate @JvmOverloads constructor(private val time: Long = 
 
             while (!Data.exitFlag) {
                 Thread.sleep(time)
-                methodGameLoop?.invoke(appGameContainer)
+                updateGameFPS?.run { this() }
             }
         } finally {
             appGameContainer.destroy()

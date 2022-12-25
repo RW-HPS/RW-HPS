@@ -26,12 +26,7 @@ object GameNet {
             settingsEngine.lastNetworkPlayerName = Data.headlessName
 
             val playerName = settingsEngine.lastNetworkPlayerName
-            /*
-            val c = a.a().c()
-            if (c != null && str == null) {
-                str = f.a(c.replace(" ", "_"), 20).toString()
-            }
-            */
+
             netEngine.y = playerName
             val kVar2 = ad.b("127.0.0.1:${Data.config.Port}",false)
             netEngine.a(kVar2)

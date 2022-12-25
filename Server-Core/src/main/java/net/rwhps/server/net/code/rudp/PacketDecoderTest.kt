@@ -13,7 +13,6 @@ import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.socket.DatagramPacket
 import io.netty.handler.codec.MessageToMessageDecoder
 import net.rwhps.server.io.input.ClearableAndReusableDisableSyncByteArrayInputStream
-import net.udp.impl.Segment
 
 class PacketDecoderTest : MessageToMessageDecoder<DatagramPacket>() {
 
@@ -29,7 +28,7 @@ class PacketDecoderTest : MessageToMessageDecoder<DatagramPacket>() {
         val bytes = ByteArray(bufferIn.readableBytes())
         bufferIn.readBytes(bytes)
 
-        val segment = Segment.parse(bytes)
+        //val segment = Segment.parse(bytes)
 
     }
 }

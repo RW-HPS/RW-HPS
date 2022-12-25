@@ -11,16 +11,15 @@ package net.rwhps.server.net.handler.tcp
 
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.socket.SocketChannel
-import net.rwhps.server.net.StartNet
 import net.rwhps.server.net.core.AbstractNet
 
 @Sharable
-internal class StartGameNetTcp(startNet: StartNet): AbstractNet(startNet) {
+internal class StartGameNetTcp : AbstractNet() {
     @Throws(Exception::class)
     override fun initChannel(socketChannel: SocketChannel) {
         val pipeline = socketChannel.pipeline()
         addTimeOut(pipeline)
         addPacketDecoderAndEncoder(pipeline)
-        addNewServerHandlerExecutorGroup(pipeline)
+        addNewServerHandler(pipeline)
     }
 }

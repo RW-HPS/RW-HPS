@@ -9,20 +9,27 @@
 
 package net.rwhps.server.game.simulation.gameFramework
 
+import com.corrodinggames.rts.game.units.custom.ag
 import com.corrodinggames.rts.game.units.custom.l
 import com.corrodinggames.rts.game.units.y
 import com.corrodinggames.rts.gameFramework.w
 import net.rwhps.server.core.Call
+import net.rwhps.server.struct.ObjectMap
+import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.alone.annotations.GameSimulationLayer
 import net.rwhps.server.util.log.Log
 
 object GameUnitData {
 
+    @GameSimulationLayer.GameSimulationLayer_KeyWords("Failed to reserve memory pre-mod load")
+    fun reloadUnitData() {
+        ag.h()
+    }
+
     @GameSimulationLayer.GameSimulationLayer_KeyWords("NULL")
     @Suppress("UNCHECKED_CAST")
-    fun getUnitData(coreName: String): net.rwhps.server.struct.OrderedMap<String, net.rwhps.server.struct.ObjectMap<String, Int>> {
-        val modsData =
-            net.rwhps.server.struct.OrderedMap<String, net.rwhps.server.struct.ObjectMap<String, Int>>()
+    fun getUnitData(coreName: String): OrderedMap<String, ObjectMap<String, Int>> {
+        val modsData = OrderedMap<String, ObjectMap<String, Int>>()
         val gameUnitDataList: List<l> = l.c as List<l>
 
         for(data in gameUnitDataList) {
@@ -30,7 +37,7 @@ object GameUnitData {
             if (modsData.containsKey(group)) {
                 modsData.get(group).put(data.M,data.H)
             } else {
-                val cache = net.rwhps.server.struct.OrderedMap<String, Int>()
+                val cache = OrderedMap<String, Int>()
                 modsData.put(group,cache)
                 cache.put(data.M,data.H)
             }

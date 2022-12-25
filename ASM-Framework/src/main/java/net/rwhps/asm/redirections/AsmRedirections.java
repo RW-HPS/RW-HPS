@@ -15,7 +15,7 @@ import net.rwhps.asm.api.RedirectionManager;
 import java.util.HashMap;
 
 public class AsmRedirections {
-    public static HashMap<String, Redirection> customRedirection = new HashMap();
+    public static HashMap<String, Redirection> customRedirection = new HashMap<>();
 
     public static void redirect(String desc, Redirection redirection) {
         customRedirection.put(desc, redirection);

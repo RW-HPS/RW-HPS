@@ -14,13 +14,13 @@ import net.rwhps.server.net.core.IRwHps
 
 interface AbstractGlobalEvent {
     /** 游戏核心初始化完毕 [同步-Sync]  */
-    fun registerGameLibLoadEvent() {}
+    fun registerGameLibLoadEvent() { /* Optional use of plugins */ }
 
     /** 服务器初始化 [同步-Sync]  */
-    fun registerServerLoadEvent() {}
+    fun registerServerLoadEvent() { /* Optional use of plugins */ }
 
     /** 启动了新协议 [同步-Sync]  */
-    fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) {}
+    fun registerServerStartTypeEvent(serverNetType: IRwHps.NetType) { /* Optional use of plugins */ }
 
     /**
      * 玩家加入 [同步-Synchronization]
@@ -32,5 +32,5 @@ interface AbstractGlobalEvent {
      * 玩家加入 [同步-Synchronization]
      * @param connectionAgreement connectionAgreement
      */
-    fun registerNewCloseEvent(connectionAgreement: ConnectionAgreement) {}
+    fun registerNewCloseEvent(connectionAgreement: ConnectionAgreement) { /* Optional use of plugins */ }
 }

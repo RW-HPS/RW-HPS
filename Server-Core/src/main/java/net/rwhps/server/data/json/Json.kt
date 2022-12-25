@@ -10,6 +10,7 @@
 package net.rwhps.server.data.json
 
 import com.google.gson.Gson
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.file.FileUtil
@@ -118,7 +119,7 @@ class Json {
          * @return Json
          */
         @JvmStatic
-        fun toJson(map: net.rwhps.server.struct.ObjectMap<String, Any>): String {
+        fun toJson(map: ObjectMap<String, Any>): String {
             return HashMap<String,Any>().also { map.each { key, value -> it[key] = value } }.toPrettyPrintingJson()
         }
 

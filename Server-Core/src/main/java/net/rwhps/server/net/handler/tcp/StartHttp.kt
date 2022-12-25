@@ -23,7 +23,6 @@ import io.netty.handler.timeout.IdleStateEvent
 import io.netty.handler.timeout.IdleStateHandler
 import io.netty.util.CharsetUtil
 import net.rwhps.server.data.global.Data
-import net.rwhps.server.net.StartNet
 import net.rwhps.server.net.core.AbstractNet
 import net.rwhps.server.net.http.SendWeb
 import net.rwhps.server.net.http.WebData
@@ -35,7 +34,7 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLEngine
 
-internal class StartHttp(startNet: StartNet) : AbstractNet(startNet) {
+internal class StartHttp : AbstractNet() {
     var socketChannel: SocketChannel? = null
     private var sslContext: SSLContext? = null
 

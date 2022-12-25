@@ -13,6 +13,7 @@ package net.rwhps.server.util.log
  * 错误码
  * @author RW-HPS/Dr
  */
+@Deprecated(message = "")
 enum class ErrorCode(val code: Int, private val errMsg: String) {
     /*状态码*/ /**
      * 通用码

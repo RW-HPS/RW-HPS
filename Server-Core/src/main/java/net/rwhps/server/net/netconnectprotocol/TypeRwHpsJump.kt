@@ -17,6 +17,7 @@ import net.rwhps.server.net.core.server.AbstractNetConnect
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
 import net.rwhps.server.util.ExtractUtil
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.Time.concurrentSecond
 import net.rwhps.server.util.log.Log
 
@@ -40,14 +41,14 @@ open class TypeRwHpsJump : TypeConnect {
     }
     constructor(con: Class<out GameVersionServerJump>) {
         // will not be used ; just override the initial value to avoid refusing to compile
-        this.con = net.rwhps.server.util.ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
+        this.con = ReflectionUtils.accessibleConstructor(con, ConnectionAgreement::class.java).newInstance(ConnectionAgreement())
 
         // use for instantiation
         conClass = con
     }
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeRwHpsJump(net.rwhps.server.util.ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+        return TypeRwHpsJump(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)

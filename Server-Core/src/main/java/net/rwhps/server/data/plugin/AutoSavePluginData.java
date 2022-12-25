@@ -13,7 +13,5 @@ package net.rwhps.server.data.plugin;
  * @author RW-HPS/Dr
  */
 public class AutoSavePluginData extends AbstractPluginData {
-    public AutoSavePluginData() {
-    }
 }
 

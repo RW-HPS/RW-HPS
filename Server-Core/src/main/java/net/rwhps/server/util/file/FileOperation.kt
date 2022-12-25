@@ -70,4 +70,29 @@ object FileOperation {
         //
         FileCheck.requireEqualSizes(srcFile, destFile, srcFile.length(), destFile.length())
     }
+
+    /**
+     * Delete files recursively
+     *
+     * @param file File
+     *
+     * @throws IOException
+     * @throws SecurityException
+     */
+    @JvmStatic
+    @Throws(IOException::class,SecurityException::class)
+    fun recursiveDelete(file: File) {
+        if (!file.exists()) {
+            return
+        }
+
+        if (file.isDirectory) {
+            file.listFiles()?.run {
+                for (f in this) {
+                    recursiveDelete(f)
+                }
+            }
+        }
+        file.delete()
+    }
 }

@@ -27,6 +27,7 @@ import net.rwhps.server.util.log.Log.error
  * @author RW-HPS/Dr
  */
 class Application {
+    /** 服务器 Setting 主数据 */
     val settings: PluginData = PluginData()
 
     /** 服务器唯一UUID  */
@@ -37,6 +38,9 @@ class Application {
     @JvmField
     var upServerList = false
 
+    /**
+     * 读取 Setting 主数据
+     */
     fun load() {
         settings.setFileUtil(FileUtil.getFolder(Data.Plugin_Data_Path).toFile("Settings.bin"))
         admin = Administration(settings)
@@ -49,6 +53,9 @@ class Application {
         }
     }
 
+    /**
+     * 服务器退出时保存数据
+     */
     fun save() {
         // 先执行自己的保存
         runSavePool()
@@ -109,7 +116,6 @@ class Application {
      * @param name  属性名
      * @return 属性值或null
      * @see System String
-     *
      * @see System String
      */
     private operator fun get(name: String): String {
@@ -128,5 +134,4 @@ class Application {
         }
         return value!!
     }
-
 }

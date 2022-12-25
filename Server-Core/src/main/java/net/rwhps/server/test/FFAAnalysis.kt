@@ -12,14 +12,14 @@ package net.rwhps.server.test
 import net.rwhps.server.game.GameUnitType
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
+import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.log.Log
-import net.rwhps.server.util.zip.zip.ZipDecoder
 
 class FFAAnalysis {
     fun test() {
         val bytes = GameOutputStream()
-        ZipDecoder(FileUtil.getFile("ffa.zip").getInputsStream()).getSpecifiedSuffixInThePackage("bin").also {
+        CompressionDecoderUtils.zipStream(FileUtil.getFile("ffa.zip").getInputsStream()).getSpecifiedSuffixInThePackage("bin").also {
             for (i in 0..3542) {
                 bytes.writeBytes(it[i.toString()])
             }

@@ -13,13 +13,17 @@ import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.Value
 import net.rwhps.server.data.totalizer.TimeAndNumber
+import net.rwhps.server.func.Prov
+import net.rwhps.server.game.event.EventType
 import net.rwhps.server.game.simulation.pivatedata.PrivateClass_Player
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServerJump
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.NetException
 import org.jetbrains.annotations.Nls
@@ -47,9 +51,10 @@ class Player(
 
     /** Team number  */
 	var team = 0
-        set(value) { watch = (value == -3) ; color = value; field = value }
+        set(value) { watch = (value == -3) ; field = value }
     /** List position  */
 	var site = 0
+        set(value) { color = value ; field = value }
 
     /** */
     var credits
@@ -88,6 +93,12 @@ class Player(
 
     /** (Markers)  */
     @Volatile var start = false
+        set(value) {
+            field = value
+            if (name == Data.headlessName) {
+                Events.fire(EventType.HessStartEvent())
+            }
+        }
     var watch = false
         private set
 
@@ -122,7 +133,7 @@ class Player(
 
     val reConnectData = TimeAndNumber(300,3)
 
-    private val customData = net.rwhps.server.struct.ObjectMap<String, Value<*>>()
+    private val customData = ObjectMap<String, Value<*>>()
 
     @Throws(ImplementedException.PlayerImplementedException::class)
     fun sendSystemMessage(@Nls text: String) {
@@ -175,7 +186,7 @@ class Player(
         return (customData[dataName]?.data ?:defValue) as T
     }
     @Suppress("UNCHECKED_CAST")
-    fun <T> getData(dataName: String, defProv: net.rwhps.server.func.Prov<T>): T {
+    fun <T> getData(dataName: String, defProv: Prov<T>): T {
         return (customData[dataName]?.data ?:defProv.get()) as T
     }
     fun removeData(dataName: String) {

@@ -11,15 +11,18 @@ package net.rwhps.server.util.file
 
 import net.rwhps.server.core.Core
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.IsUtil
-import net.rwhps.server.util.encryption.Md5
+import net.rwhps.server.util.compression.CompressionDecoderUtils
+import net.rwhps.server.util.compression.core.CompressionDecoder
+import net.rwhps.server.util.encryption.digest.DigestUtil
 import net.rwhps.server.util.io.IoOutConversion.fileToOutStream
 import net.rwhps.server.util.io.IoOutConversion.fileToStream
 import net.rwhps.server.util.io.IoRead.readFileToByteArray
 import net.rwhps.server.util.io.IoReadConversion.fileToReadStream
 import net.rwhps.server.util.io.IoReadConversion.fileToStream
-import net.rwhps.server.util.zip.zip.ZipDecoder
+import net.rwhps.server.util.log.Log.error
 import java.io.*
 import java.net.URLDecoder.decode
 import net.rwhps.server.util.log.Log.error
@@ -107,6 +110,15 @@ open class FileUtil {
 
     open fun notExists(): Boolean = !file.exists()
 
+    fun delete(): Boolean {
+        return try {
+            FileOperation.recursiveDelete(file)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
     fun length(): Long {
         return file.length()
     }
@@ -133,18 +145,7 @@ open class FileUtil {
         if (filename == "") {
             return this
         }
-        var to = this.path
-        to += if ("/" == filename[0].toString()) {
-            filename.substring(1, filename.length)
-        } else {
-            "/$filename"
-        }
-        // 过滤末尾 /
-        to = if (to.endsWith("/")) {
-            to.substring(0, to.length-1)
-        } else {
-            "/$to"
-        }
+        val to = cehckFolderPath(this.path,filename)
 
         return if (isNewFile) {
             FileUtil(File(to),to,true,isNewFile)
@@ -164,19 +165,17 @@ open class FileUtil {
                 return fileList
             }
             for (value in array!!) {
-                if (!value.isDirectory) {
-                    if (value.isFile) {
-                        fileList.add(value)
-                    }
+                if (!value.isDirectory && value.isFile) {
+                    fileList.add(value)
                 }
             }
             return fileList
         }
 
-    val filePollingList: net.rwhps.server.struct.OrderedMap<String, File>
+    val filePollingList: OrderedMap<String, File>
         get() {
             val array = file.listFiles()
-            val fileList = net.rwhps.server.struct.OrderedMap<String, File>()
+            val fileList = OrderedMap<String, File>()
             if (IsUtil.isBlank(array)) {
                 return fileList
             }
@@ -208,11 +207,11 @@ open class FileUtil {
             return list
         }
 
-    val zipDecoder: ZipDecoder
-        get() = ZipDecoder(this.getInputsStream())
+    val zipDecoder: CompressionDecoder
+        get() = CompressionDecoderUtils.zip(file)
 
-    val md5: String?
-        get() = Md5.md5(getInputsStream())
+    val md5: String
+        get() = DigestUtil.md5Hex(getInputsStream())
 
     /**
      *
@@ -262,7 +261,7 @@ open class FileUtil {
         return fileToReadStream(file)
     }
 
-    @Throws(Exception::class)
+    @Throws(IOException::class)
     fun readFileByte(): ByteArray {
         mkdir()
         return readFileToByteArray(file)
@@ -371,23 +370,12 @@ open class FileUtil {
         @JvmStatic
 		@JvmOverloads
         fun getFolder(toFile: String? = null, isNewFile: Boolean = false): FileUtil {
-            val filepath: String
-            var to = toFile
-            if (null != toFile) {
-                /*
-                 * 防止传入/开头的导致filepath//xxx
-                 */
-                if ("/" == toFile[0].toString()) {
-                    to = toFile.substring(1,toFile.length)
-                }
-            }
-            /* 防止传入/ */
-            filepath = if (null == to) {
-                defaultFilePath
+            var to = if (null != toFile) {
+                cehckFolderPath(defaultFilePath,toFile)
             } else {
-                defaultFilePath + to
+                defaultFilePath
             }
-            return FileUtil(File(filepath), filepath,true,isNewFile)
+            return FileUtil(File(to), to,true,isNewFile)
         }
 
         @JvmStatic
@@ -413,6 +401,45 @@ open class FileUtil {
         @JvmStatic
         fun readFileListString(inputStream: InputStream): Seq<String> {
             return FileStream.readFileListString(inputStream)
+        }
+
+        @JvmStatic
+        fun getInternalFileStream(name: String): InputStream {
+            return FileUtil::class.java.getResourceAsStream(name)!!
+        }
+
+        @JvmStatic
+        fun getPath(name: String): String {
+            return cehckFolderPath(defaultFilePath,name)
+        }
+
+        @JvmStatic
+        fun splicePath(splice1:String, splice2: String): String {
+            return cehckFolderPath(splice1,splice2)
+        }
+
+        private fun cehckFolderPath(defPath:String, path: String): String {
+            if (path == "") {
+                return path
+            }
+
+            var to = if ("/" == path[0].toString()) {
+                path.substring(1)
+            } else {
+                path
+            }
+            // 过滤末尾 /
+            to = if (to.endsWith("/")) {
+                to.substring(0,to.length-1)
+            } else {
+                to
+            }
+
+            return if (defPath.endsWith("/")) {
+                defPath+to
+            } else {
+                "$defPath/$to"
+            }
         }
     }
 }

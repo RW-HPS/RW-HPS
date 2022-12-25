@@ -36,8 +36,8 @@ public class NetServer {
             Call.killAllPlayer("Server Close");
 
             NetStaticData.startNet.eachAll(e ->{
-                e.stop();
-                return Unit.INSTANCE;
+                    e.stop();
+                    return Unit.INSTANCE;
             });
             NetStaticData.startNet.clear();
             NetStaticData.INSTANCE.setServerNetType(IRwHps.NetType.NullProtocol);

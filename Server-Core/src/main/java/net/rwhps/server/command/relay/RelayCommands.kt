@@ -12,19 +12,21 @@ package net.rwhps.server.command.relay
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Relay
 import net.rwhps.server.data.plugin.PluginManage
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.util.IpUtil
 import net.rwhps.server.util.IsUtil.isBlank
+import net.rwhps.server.util.game.CommandHandler
 
-class RelayCommands(handler: net.rwhps.server.util.game.CommandHandler) {
-    private fun registerRelayCommand(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("players", "serverCommands.players") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+class RelayCommands(handler: CommandHandler) {
+    private fun registerRelayCommand(handler: CommandHandler) {
+        handler.register("players", "serverCommands.players") { _: Array<String>?, log: StrCons ->
             if (Relay.serverRelayIpData.size == 0) {
                 log["No players are currently in the server."]
             } else {
                 log[Relay.relayAllIP]
             }
         }
-        handler.register("banrelay", "<id>", "serverCommands.banrelay") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("banrelay", "<id>", "serverCommands.banrelay") { arg: Array<String>, log: StrCons ->
             val relay = Relay.getRelay(arg[0])
             if (isBlank(relay)) {
                 log["NOT RELAY ROOM"]
@@ -38,19 +40,19 @@ class RelayCommands(handler: net.rwhps.server.util.game.CommandHandler) {
             }
         }
 
-        handler.register("banip", "<ip>", "serverCommands.banrelay") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("banip", "<ip>", "serverCommands.banrelay") { arg: Array<String>, log: StrCons ->
             val ip = arg[0]
             Data.core.admin.bannedIP24.add(IpUtil.ipToLong24(ip,false))
             log["OK!  $ip The *.*.*.0 segment is disabled"]
         }
 
-        handler.register("unbanrelay", "<ip>", "serverCommands.unBanrelay") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("unbanrelay", "<ip>", "serverCommands.unBanrelay") { arg: Array<String>, log: StrCons ->
             val ip = arg[0]
             Data.core.admin.bannedIP24.remove(IpUtil.ipToLong24(ip,false))
             log["OK!  $ip The *.*.*.0 segment is unDisabled"]
         }
 
-        handler.register("bans",  "serverCommands.bans") { _: Array<String>, log: net.rwhps.server.func.StrCons ->
+        handler.register("bans",  "serverCommands.bans") { _: Array<String>, log: StrCons ->
             if (Data.core.admin.bannedIP24.size == 0) {
                 log["No bans are currently in the server."]
             } else {

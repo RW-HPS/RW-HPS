@@ -63,6 +63,8 @@ class Relay {
     var startGameTime = 0
         private set
 
+    var allmute = false
+
     private val site = AtomicInteger(0)
     private val size = AtomicInteger()
 
@@ -112,16 +114,23 @@ class Relay {
         }
 
     fun re() {
-        closeRoom = true
-        abstractNetConnectIntMap.clear()
-        site.set(0)
-        admin = null
-        isStartGame = false
+        removeRoom()
     }
 
     fun removeRoom(run: ()->Unit = {}) {
-        serverRelayData.remove(internalID)
-        run()
+        try {
+            admin?.disconnect()
+            abstractNetConnectIntMap.values.forEach { it.disconnect() }
+            closeRoom = true
+            abstractNetConnectIntMap.clear()
+            site.set(0)
+            admin = null
+            isStartGame = false
+        } catch (e: Exception) {
+        } finally {
+            serverRelayData.remove(internalID)
+            run()
+        }
     }
 
     fun getAbstractNetConnect(site: Int): GameVersionRelay? {
@@ -136,6 +145,15 @@ class Relay {
         try {
             admin!!.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
             groupNet.broadcastAndUDP(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(msg))
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun sendMsg(msg: String, msgName: String, team: Int) {
+        try {
+            admin!!.sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(msg,msgName,team))
+            groupNet.broadcastAndUDP(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket(msg,msgName,team))
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -235,7 +253,6 @@ class Relay {
                 serverRelayData.values.forEach(Consumer { e: Relay -> if (!e.isStartGame) size.incrementAndGet() })
                 return size.get()
             }
-        val roomPublicSize: Int = 0
 
         @get:Synchronized
         internal val randPow: NetConnectProofOfWork

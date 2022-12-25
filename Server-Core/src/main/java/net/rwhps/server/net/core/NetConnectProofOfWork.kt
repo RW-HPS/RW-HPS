@@ -11,10 +11,11 @@ package net.rwhps.server.net.core
 
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
+import net.rwhps.server.struct.SerializerTypeAll
 import net.rwhps.server.util.RandomUtil
 import net.rwhps.server.util.StringFilteringUtil
 import net.rwhps.server.util.Time
-import net.rwhps.server.util.encryption.Sha
+import net.rwhps.server.util.encryption.digest.DigestUtil
 import net.rwhps.server.util.log.exp.ImplementedException
 import java.io.IOException
 import java.math.BigInteger
@@ -65,7 +66,7 @@ internal class NetConnectProofOfWork {
         when (authenticateType) {
             in 3..4 -> {
                 outcome = StringFilteringUtil.cutting(
-                    BigInteger(1, Sha.sha256Array("$initInt_1|$initInt_2")).toString(16).uppercase(), 14
+                    BigInteger(1, DigestUtil.sha256("$initInt_1|$initInt_2")).toString(16).uppercase(), 14
                 )
                 fixedInitial = ""
                 off = 0
@@ -76,7 +77,7 @@ internal class NetConnectProofOfWork {
                 off = rand.nextInt(0, 10)
                 maximumNumberOfCalculations = rand.nextInt(0, 10000000)
                 outcome = StringFilteringUtil.cutting(
-                    BigInteger(1, Sha.sha256Array(fixedInitial + "" + off)).toString(16).uppercase(), 14
+                    BigInteger(1, DigestUtil.sha256(fixedInitial + "" + off)).toString(16).uppercase(), 14
                 )
             }
             else -> {
@@ -148,7 +149,7 @@ internal class NetConnectProofOfWork {
          * Serialize Deserialize NetConnectAuthenticate
          * thrift CPU
          */
-        internal val serializer = object : net.rwhps.server.struct.SerializerTypeAll.TypeSerializer<NetConnectProofOfWork> {
+        internal val serializer = object : SerializerTypeAll.TypeSerializer<NetConnectProofOfWork> {
             @Throws(IOException::class)
             override fun write(stream: GameOutputStream, objectData: NetConnectProofOfWork) {
                 stream.writeByte(objectData.authenticateType)

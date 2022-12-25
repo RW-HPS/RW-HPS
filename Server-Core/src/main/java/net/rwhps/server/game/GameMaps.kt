@@ -10,8 +10,8 @@
 package net.rwhps.server.game
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.util.compression.CompressionDecoderUtils
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
-import net.rwhps.server.util.zip.zip.ZipDecoder
 import net.rwhps.server.util.log.Log.error
 /**
  * 游戏的地图数据
@@ -102,8 +102,7 @@ class GameMaps {
                     error("Read Map Bytes Error", e)
                 }
                 MapFileType.zip -> try {
-                    bytesMap =
-                        ZipDecoder(fileUtil.toFile(zipFileName!!).file).getTheFileBytesOfTheSpecifiedSuffixInTheZip(this)
+                    bytesMap = CompressionDecoderUtils.zip(fileUtil.toFile(zipFileName!!).file).use { it.getTheFileBytesOfTheSpecifiedSuffixInTheZip(this) }
                     mapSize = bytesMap!!.size
                 } catch (e: Exception) {
                     error("Read Map Bytes Error", e)

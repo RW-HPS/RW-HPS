@@ -19,6 +19,8 @@ import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelayRebroadcast
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.ReflectionUtils
+import net.rwhps.server.util.game.CommandHandler
 
 /**
  * Parse the [net.rwhps.server.net.core.IRwHps.NetType.RelayMulticastProtocol] protocol
@@ -34,7 +36,7 @@ class TypeRelayRebroadcast : TypeRelay {
     constructor(con: Class<out GameVersionRelayRebroadcast>) : super(con)
 
     override fun getTypeConnect(connectionAgreement: ConnectionAgreement): TypeConnect {
-        return TypeRelayRebroadcast(net.rwhps.server.util.ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
+        return TypeRelayRebroadcast(ReflectionUtils.accessibleConstructor(conClass!!, ConnectionAgreement::class.java).newInstance(connectionAgreement))
     }
 
     @Throws(Exception::class)
@@ -65,11 +67,11 @@ class TypeRelayRebroadcast : TypeRelay {
                             if (it.readIsString() == con.name) {
                                 if (message.startsWith(".")) {
                                     val response = Data.RELAY_COMMAND.handleMessage(message, con)
-                                    if (response == null || response.type == net.rwhps.server.util.game.CommandHandler.ResponseType.noCommand) {
-                                    } else if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+                                    if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                                    } else if (response.type != CommandHandler.ResponseType.valid) {
                                         val text: String = when (response.type) {
-                                            net.rwhps.server.util.game.CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                                            net.rwhps.server.util.game.CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                            CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                                            CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                                             else -> return@use
                                         }
                                         con.sendPacket(NetStaticData.RwHps.abstractNetPacket.getSystemMessagePacket(text))
@@ -82,6 +84,7 @@ class TypeRelayRebroadcast : TypeRelay {
                 }
             }
         }
+
 
         when (packet.type) {
             // 快速抛弃
@@ -115,10 +118,7 @@ class TypeRelayRebroadcast : TypeRelay {
                     PacketType.DISCONNECT -> con.disconnect()
                     PacketType.SERVER_DEBUG_RECEIVE -> con.debug(packet)
                     PacketType.GET_SERVER_INFO_RECEIVE -> con.exCommand(packet)
-                    else ->
-                        //Log.clog(packet.type.name);
-                        con.sendResultPing(packet)
-
+                    else -> con.sendResultPing(packet)
                 }
             }
         }

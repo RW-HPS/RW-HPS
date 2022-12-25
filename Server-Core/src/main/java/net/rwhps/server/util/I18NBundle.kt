@@ -9,6 +9,7 @@
 
 package net.rwhps.server.util
 
+import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.file.FileUtil
 import net.rwhps.server.util.io.IoReadConversion
 import net.rwhps.server.util.log.Log
@@ -24,7 +25,7 @@ import java.util.*
  * @Date ?
  */
 class I18NBundle {
-    private val languageData = net.rwhps.server.struct.OrderedMap<String, String>()
+    private val languageData = OrderedMap<String, String>()
 
     constructor(fileUtil: FileUtil) {
         try {

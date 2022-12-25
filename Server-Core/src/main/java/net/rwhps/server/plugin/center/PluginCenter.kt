@@ -11,25 +11,27 @@ package net.rwhps.server.plugin.center
 
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.json.Json
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.plugin.GetVersion
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
+import net.rwhps.server.util.game.CommandHandler
 
 class PluginCenter {
-    private val pluginCommand = net.rwhps.server.util.game.CommandHandler("")
+    private val pluginCommand = CommandHandler("")
     private var pluginCenterData: PluginCenterData
     private val url: String = Data.urlData.readString("Get.Plugin.Core")
 
 
-    fun command(str: String?, log: net.rwhps.server.func.StrCons) {
+    fun command(str: String?, log: StrCons) {
         val response = pluginCommand.handleMessage(str, log)
-        if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+        if (response.type != CommandHandler.ResponseType.valid) {
             val text: String = when (response.type) {
-                        net.rwhps.server.util.game.CommandHandler.ResponseType.manyArguments -> {
+                        CommandHandler.ResponseType.manyArguments -> {
                             "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                         }
-                        net.rwhps.server.util.game.CommandHandler.ResponseType.fewArguments -> {
+                        CommandHandler.ResponseType.fewArguments -> {
                             "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                         }
                         else -> {
@@ -41,19 +43,19 @@ class PluginCenter {
     }
 
     private fun register() {
-        pluginCommand.register("help", "") { _: Array<String?>?, log: net.rwhps.server.func.StrCons ->
+        pluginCommand.register("help", "") { _: Array<String?>?, log: StrCons ->
             log["plugin list  查看插件列表"]
             log["plugin updatalist  更新插件列表"]
             log["plugin install PluginID  安装指定id的插件"]
         }
-        pluginCommand.register("updatelist", "") { _: Array<String?>?, log: net.rwhps.server.func.StrCons ->
+        pluginCommand.register("updatelist", "") { _: Array<String?>?, log: StrCons ->
             pluginCenterData = PluginCenterData(url + "PluginData")
             log["更新插件列表完成"]
         }
-        pluginCommand.register("list", "") { _: Array<String?>?, log: net.rwhps.server.func.StrCons ->
+        pluginCommand.register("list", "") { _: Array<String?>?, log: StrCons ->
             log[pluginCenterData.pluginData]
         }
-        pluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+        pluginCommand.register("install", "<PluginID>", "") { arg: Array<String>, log: StrCons ->
             val json = pluginCenterData.getJson(arg[0].toInt())
             if (!GetVersion(Data.SERVER_CORE_VERSION).getIfVersion(json.getString("supportedVersions"))) {
                 log["Plugin version is not compatible Plugin name is: {0}", json.getString("name")]

@@ -16,8 +16,9 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAn
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionRelay
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.game.CommandHandler
 
-internal class RelayClientCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+internal class RelayClientCommands(handler: CommandHandler) {
     private val localeUtil = Data.i18NBundle
 
     private fun isAdmin(con: GameVersionRelay, sendMsg: Boolean = true): Boolean {
@@ -60,10 +61,6 @@ internal class RelayClientCommands(handler: net.rwhps.server.util.game.CommandHa
 
         handler.register("kickx","<Name/Site>" ,"#Remove List") { args: Array<String>, con: GameVersionRelay ->
             if (isAdmin(con)) {
-                if (con.relay!!.isStartGame && con.relay!!.startGameTime < Time.concurrentSecond()) {
-                    sendMsg(con,"It's been five minutes, no more kicks")
-                    return@register
-                }
                 val conTg: GameVersionRelay? = findPlayer(con,args[0])
                 conTg?.let {
                     con.relayKickData.put("KICK"+it.playerRelay!!.uuid, Time.concurrentSecond()+60)
@@ -113,6 +110,12 @@ internal class RelayClientCommands(handler: net.rwhps.server.util.game.CommandHa
             }
         }
 
+        handler.register("allmute","#Remove List") { _: Array<String>, con: GameVersionRelay ->
+            if (isAdmin(con)) {
+                con.relay!!.allmute = !con.relay!!.allmute
+                sendMsg(con,"全局禁言状态是 :  ${if (con.relay!!.allmute) "开启" else "关闭"}")
+            }
+        }
 
         PluginManage.runRegisterRelayClientCommands(handler)
     }

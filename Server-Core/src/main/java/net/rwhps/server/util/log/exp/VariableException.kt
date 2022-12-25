@@ -14,8 +14,8 @@ import net.rwhps.server.util.log.ErrorCode
 /**
  * @author RW-HPS/Dr
  */
-class VariableException(type: String) : RuntimeException(ErrorCode.valueOf(type).error) {
-    class ArrayRuntimeException(type: String) : RuntimeException(ErrorCode.valueOf(type).error)
+class VariableException(info: String) : RuntimeException(info) {
+    class ArrayRuntimeException(info: String) : Exception(info)
 
     class ObjectMapRuntimeException(info: String) : RuntimeException(info)
 

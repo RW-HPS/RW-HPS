@@ -10,6 +10,7 @@
 package net.rwhps.server.net
 
 import net.rwhps.server.util.log.Log
+import net.rwhps.server.util.log.Log.error
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request.Builder
@@ -173,7 +174,7 @@ object HttpRequestOkHttp {
     @JvmStatic
     fun downUrl(url: String?, file: File?): Boolean {
         Log.clog(url!!)
-        if (url.isNullOrBlank() || file == null) {
+        if (url.isBlank() || file == null) {
             error("[DownUrl URL] NULL")
             return false
         }

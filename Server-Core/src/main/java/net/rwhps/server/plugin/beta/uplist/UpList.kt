@@ -14,6 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.json.Json
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.net.HttpRequestOkHttp
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.netconnectprotocol.realize.GameVersionServer
@@ -22,6 +23,7 @@ import net.rwhps.server.util.IpUtil
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.StringFilteringUtil.cutting
 import net.rwhps.server.util.encryption.Base64
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
 import java.util.concurrent.TimeUnit
 
@@ -63,11 +65,11 @@ internal class UpList : Plugin() {
         AddLang(this)
     }
 
-    override fun registerCoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+    override fun registerCoreCommands(handler: CommandHandler) {
         handler.removeCommand("upserverlist")
         handler.removeCommand("upserverlistnew")
 
-        handler.register("uplist","[command...]","serverCommands.upserverlist") { args: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("uplist","[command...]","serverCommands.upserverlist") { args: Array<String>?, log: StrCons ->
             if (args != null && args.isNotEmpty()) {
                 when (args[0]) {
                     "add" -> NetStaticData.checkServerStartNet { if (args.size > 1) add(log,args[1]) else add(log) }
@@ -135,7 +137,7 @@ internal class UpList : Plugin() {
         return true
     }
 
-    private fun add(log: net.rwhps.server.func.StrCons, port: String = "") {
+    private fun add(log: StrCons, port: String = "") {
         if (!upServerList) {
             if (initUpListData()) {
                 this.port = port.ifBlank { Data.config.Port.toString() }
@@ -203,7 +205,7 @@ internal class UpList : Plugin() {
         HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", updateData0)
     }
 
-    private fun remove(log: net.rwhps.server.func.StrCons) {
+    private fun remove(log: StrCons) {
         if (upServerList) {
             if (Threads.closeTimeTask(CallTimeTask.CustomUpServerListTask) {
                     HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", removeData)

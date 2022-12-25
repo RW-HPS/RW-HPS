@@ -10,6 +10,7 @@
 package net.rwhps.server.util.encryption
 
 import net.rwhps.server.data.global.Data
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.security.*
 import java.security.interfaces.RSAPrivateKey

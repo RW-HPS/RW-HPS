@@ -11,7 +11,6 @@ package net.rwhps.server.util
 
 import net.rwhps.server.data.global.Data
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets
 
 
 /**
@@ -19,88 +18,76 @@ import java.nio.charset.StandardCharsets
  */
 object ExtractUtil {
     private val defCharset: Charset = Charset.defaultCharset()
+
+    /**
+     * 编码字符串，编码为UTF-8
+     *
+     * @param str 字符串
+     * @return 编码后的字节码
+     */
     @JvmStatic
-    fun stringDefToUtf8(string: String): String {
-        // 用指定编码转换String为byte[]:
-        return String(string.toByteArray(defCharset), Data.UTF_8)
+    fun utf8Bytes(str: CharSequence): ByteArray {
+        return bytes(str, Data.UTF_8)
     }
 
+    /**
+     * 编码字符串<br></br>
+     * 使用系统默认编码
+     *
+     * @param str 字符串
+     * @return 编码后的字节码
+     */
     @JvmStatic
-    fun stringGbkToUtf8(string: String): String {
-        // 用指定编码转换String为byte[]:
-        return String(string.toByteArray(StandardCharsets.ISO_8859_1), Data.UTF_8)
+    fun bytes(str: CharSequence): ByteArray {
+        return bytes(str, Charset.defaultCharset())
+    }
+
+    /**
+     * 编码字符串
+     *
+     * @param str     字符串
+     * @param charset 字符集，如果此字段为空，则解码的结果取决于平台
+     * @return 编码后的字节码
+     */
+    @JvmStatic
+    fun bytes(str: CharSequence, charset: String?): ByteArray {
+        return bytes(str, if (IsUtil.isBlank(charset)) {
+            Charset.defaultCharset()
+        } else {
+            Charset.forName(charset)
+        })
+    }
+
+    /**
+     * 编码字符串
+     *
+     * @param str     字符串
+     * @param charset 字符集，如果此字段为空，则解码的结果取决于平台
+     * @return 编码后的字节码
+     */
+    @JvmStatic
+    fun bytes(str: CharSequence, charset: Charset?): ByteArray {
+        return if (null == charset) {
+            str.toString().toByteArray()
+        } else {
+            str.toString().toByteArray(charset)
+        }
+    }
+
+    /**
+     * 解码字节码
+     *
+     * @param data    字符串
+     * @param charset 字符集，如果此字段为空，则解码的结果取决于平台
+     * @return 解码后的字符串
+     */
+    @JvmStatic
+    fun str(data: ByteArray, charset: Charset?): String {
+        return if (null == charset) { String(data) } else String(data, charset)
     }
 
     private fun byteToUnsignedInt(data: Byte): Int {
         return data.toInt() and 0xff
-    }
-
-    fun isUTF8(pBuffer: ByteArray): Boolean {
-        var IsUTF8 = true
-        var IsASCII = true
-        val size = pBuffer.size
-        var i = 0
-        while (i < size) {
-            val value = byteToUnsignedInt(pBuffer[i])
-            if (value < 0x80) {
-                // (10000000): 值小于 0x80 的为 ASCII 字符
-                if (i >= size - 1) {
-                    if (IsASCII) {
-                        // 假设纯 ASCII 字符不是 UTF 格式
-                        IsUTF8 = false
-                    }
-                    break
-                }
-                i++
-            } else if (value < 0xC0) {
-                // (11000000): 值介于 0x80 与 0xC0 之间的为无效 UTF-8 字符
-                IsUTF8 = false
-                break
-            } else if (value < 0xE0) {
-                // (11100000): 此范围内为 2 字节 UTF-8 字符
-                IsASCII = false
-                if (i >= size - 1) {
-                    break
-                }
-                val value1 = byteToUnsignedInt(pBuffer[i + 1])
-                if (value1 and 0xC0 != 0x80) {
-                    IsUTF8 = false
-                    break
-                }
-                i += 2
-            } else if (value < 0xF0) {
-                IsASCII = false
-                // (11110000): 此范围内为 3 字节 UTF-8 字符
-                if (i >= size - 2) {
-                    break
-                }
-                val value1 = byteToUnsignedInt(pBuffer[i + 1])
-                val value2 = byteToUnsignedInt(pBuffer[i + 2])
-                if (value1 and 0xC0 != 0x80 || value2 and 0xC0 != 0x80) {
-                    IsUTF8 = false
-                    break
-                }
-                i += 3
-            } else if (value < 0xF8) {
-                IsASCII = false
-                // (11111000): 此范围内为 4 字节 UTF-8 字符
-                if (i >= size - 3) {
-                    break
-                }
-                val value1 = byteToUnsignedInt(pBuffer[i + 1])
-                val value2 = byteToUnsignedInt(pBuffer[i + 2])
-                val value3 = byteToUnsignedInt(pBuffer[i + 3])
-                if (value1 and 0xC0 != 0x80 || value2 and 0xC0 != 0x80 || value3 and 0xC0 != 0x80) {
-                    IsUTF8 = false
-                    break
-                }
-                i += 3
-            } else {
-                IsUTF8 = false
-                break
-            }
-        }
-        return IsUTF8
     }
 
     /**

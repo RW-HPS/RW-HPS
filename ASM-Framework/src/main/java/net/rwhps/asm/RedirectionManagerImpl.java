@@ -11,9 +11,9 @@ package net.rwhps.asm;
 
 import net.rwhps.asm.api.Redirection;
 import net.rwhps.asm.api.RedirectionManager;
-import net.rwhps.asm.redirections.AsmRedirections;
 import net.rwhps.asm.redirections.CastRedirection;
 import net.rwhps.asm.redirections.DefaultRedirections;
+import net.rwhps.asm.redirections.AsmRedirections;
 import net.rwhps.asm.redirections.ObjectRedirection;
 
 import java.util.HashMap;

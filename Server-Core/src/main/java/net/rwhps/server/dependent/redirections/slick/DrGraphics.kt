@@ -6,6 +6,7 @@
  *
  * https://github.com/RW-HPS/RW-HPS/blob/master/LICENSE
  */
+
 package net.rwhps.server.dependent.redirections.slick
 
 import org.newdawn.slick.Graphics
@@ -26,45 +27,62 @@ class DrGraphics(image: Image) : Graphics(image.texture.textureWidth, image.text
      */
     @Throws(SlickException::class)
     private fun init() {
+        /* ASM: ignore */
     }
 
     /**
      * Bind to the FBO created
      */
-    private fun bind() {}
+    private fun bind() {
+        /* ASM: ignore */
+    }
 
     /**
      * Unbind from the FBO created
      */
-    private fun unbind() {}
+    private fun unbind() {
+        /* ASM: ignore */
+    }
 
     /**
      * @see Graphics.disable
      */
-    override fun disable() {}
+    override fun disable() {
+        /* ASM: ignore */
+    }
 
     /**
      * @see Graphics.enable
      */
-    override fun enable() {}
+    override fun enable() {
+        /* ASM: ignore */
+    }
 
     /**
      * Initialise the GL context
      */
-    protected fun initGL() {}
+    protected fun initGL() {
+        /* ASM: ignore */
+    }
 
     /**
      * Enter the orthographic mode
      */
-    protected fun enterOrtho() {}
+    protected fun enterOrtho() {
+        /* ASM: ignore */
+    }
 
     /**
      * @see Graphics.destroy
      */
-    override fun destroy() {}
+    override fun destroy() {
+        /* ASM: ignore */
+    }
 
     /**
      * @see Graphics.flush
      */
-    override fun flush() {}
+    override fun flush() {
+        /* ASM: ignore */
+    }
 }

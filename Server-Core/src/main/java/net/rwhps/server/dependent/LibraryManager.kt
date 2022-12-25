@@ -38,16 +38,29 @@ class LibraryManager : AgentAttachData() {
 
     /**
      * 导入本地的依赖
+     *
      * @param file FileUtil
      */
     fun customImportLib(file: File) {
         dependenciesFile.add(file)
     }
+
+    /**
+     * 导入本地的依赖
+     *
+     * @param file FileUtil
+     */
     fun customImportLib(file: FileUtil) {
         dependenciesFile.add(file.file)
     }
 
-
+    /**
+     * 按照 Gradle DSL 的语法导入
+     *
+     * @param text                  String
+     * @param block                 Function
+     * @throws LibraryManagerError  仓库找不到这个依赖
+     */
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     @JvmOverloads
     fun implementation(text: String, block: (LibraryManager.() -> Unit)? = null) {
@@ -55,6 +68,15 @@ class LibraryManager : AgentAttachData() {
         importLib0(text)
     }
 
+    /**
+     * 按照挨个设置导入
+     *
+     * @param group                 组
+     * @param module                模块
+     * @param version               版本
+     * @param block                 Function
+     * @throws LibraryManagerError  仓库找不到这个依赖
+     */
     @Throws(LibraryManagerError.DependencyNotFoundException::class)
     @JvmOverloads
     fun implementation(group: String, module: String, version: String, block: (LibraryManager.() -> Unit)? = null) {
@@ -62,10 +84,19 @@ class LibraryManager : AgentAttachData() {
         importLib0(group, module, version)
     }
 
+    /**
+     * 排除指定依赖
+     *
+     * @param group                 组
+     * @param module                模块
+     */
     fun exclude(group: String, module: String) {
         tempGroup.add(ImportGroupData(group,module,""))
     }
 
+    /**
+     * 加载依赖到 JVM
+     */
     fun loadToClassLoader() {
         Log.clog(Data.i18NBundle.getinput("server.load.jar"))
         load()

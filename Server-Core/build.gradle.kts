@@ -6,19 +6,12 @@ val nettyVersion = "4.1.85.Final"
  */
 dependencies {
 	api("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")
-	//implementation(kotlin("reflect"))
 
-
-	//implementation(project(":RUDP"))
 	implementation(project(":TimeTaskQuartz"))
 	implementation(project(":ASM-Framework"))
-	//implementation(project(":Slick-Headless"))
-	//implementation(project(":Game-Headless"))
 
 	//implementation("com.github.minxyzgo.rw-injection:core:077d92e08c")
 	//compileOnly("com.github.minxyzgo.rw-injection:source:master-SNAPSHOT")
-	// 并没有使用 AIO
-	//api "cn.hutool:hutool-socket:5.7.5"
 
 	api("io.netty:netty-buffer:$nettyVersion")
 	api("io.netty:netty-codec:$nettyVersion")
@@ -36,8 +29,8 @@ dependencies {
 	//implementation(fileTree(mapOf("dir" to "libs", "include" to "*.jar")))
 
 	api("com.github.deng-rui:RUDP:2.0.0")
+	//implementation(fileTree(mapOf("dir" to "libs", "include" to "RUDP.jar")))
 	//api("com.github.jmecn:TMXLoader:v0.2")
-	//api("com.github.deng-rui:Compress-Zip:1.0.0")
 
 	// Json 解析
 	// 我建议使用 RW-HPS Json 方法 而不是直接使用依赖
@@ -45,9 +38,8 @@ dependencies {
 	api("org.json:json:20220924")
 
 	api("org.apache.commons:commons-compress:1.21")
+	implementation("org.tukaani:xz:1.9")
 
-	//compileOnly group: "com.ip2location", name: "ip2location-java", version: "8.5.0"
-	//compileOnly group: "com.alibaba", name: "fastjson", version: "1.2.58"
 	api("com.squareup.okhttp3:okhttp:4.10.0") {
 		exclude(group = "org.jetbrains.kotlin")
 	}
@@ -60,26 +52,17 @@ dependencies {
 	implementation("org.apache.maven:maven-project:2.2.1")
 	implementation("org.apache.maven:maven-model:3.8.6")
 	implementation("org.lionsoul:ip2region:1.7.2")
+
 	implementation("org.jline:jline-reader:3.21.0")
 	implementation("org.fusesource.jansi:jansi:2.4.0")
 
-
-	compileOnly("commons-io:commons-io:2.11.0")
-	api("it.unimi.dsi:fastutil-core:8.5.9")
-	//compileOnly group: "org.bouncycastle", name: "bcprov-jdk15on", version: "1.69"
-
-	//compileOnly fileTree(dir:"libs",include:["*.jar"])
-	//compileOnly group: "com.github.oshi", name: "oshi-core", version: "5.5.0"
+	api("it.unimi.dsi:fastutil-core:8.5.11")
 
 	testApi("org.junit.jupiter:junit-jupiter-engine:5.9.0")
 }
 
 tasks.test {
 	useJUnitPlatform()
-}
-
-tasks.jar {
-	//archiveFile.get().asFile.copyTo(File("$rwPath\\game-lib.jar"), true)
 }
 
 publishing {

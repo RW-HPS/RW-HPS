@@ -9,20 +9,23 @@
 
 package net.rwhps.server.core.thread
 
+import net.rwhps.server.core.thread.CallGroupData.coreExpandServer
+import net.rwhps.server.core.thread.CallGroupData.coreServer
+
 enum class CallTimeTask(
     val group: String,
     val description: String
     ) {
-    CallPingTask(                   "[Core]Server",   "Update player delay"),
-    CallTeamTask(                   "[Core]Server",   "Update player team list"),
-    CallCheckTask(                  "[Core]Server",   "Update player check data"),
+    CallPingTask(                   coreServer,         "Update player delay"),
+    CallTeamTask(                   coreServer,         "Update player team list"),
+    CallCheckTask(                  coreServer,         "Update player check data"),
 
-    PlayerAfkTask(                  "[Core]Server",   "Transfer of authority"),
-    GameOverTask(                   "[Core]Server",   "Check gameover"),
-    VoteTask(                       "[Core]Server",   "Vote"),
-    AutoStartTask(                  "[Corex]Server",  "Start automatically"),
-    AutoUpdateMapsTask(             "[Corex]Server",  "Auto update maps"),
-    AutoCheckTask(                  "[Corex]Server",  "Auto Check player survives"),
+    PlayerAfkTask(                  coreServer,         "Transfer of authority"),
+    GameOverTask(                   coreServer,         "Check gameover"),
+    VoteTask(                       coreServer,         "Vote"),
+    AutoStartTask(                  coreExpandServer,   "Start automatically"),
+    AutoUpdateMapsTask(             coreExpandServer,   "Auto update maps"),
+    AutoCheckTask(                  coreExpandServer,   "Auto Check player survives"),
 
     TestStatus(                  "[TEST]",  "Auto Check player survives"),
 

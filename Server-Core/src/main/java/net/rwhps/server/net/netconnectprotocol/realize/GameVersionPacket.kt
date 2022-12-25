@@ -20,6 +20,7 @@ import net.rwhps.server.io.output.CompressOutputStream
 import net.rwhps.server.io.packet.GameCommandPacket
 import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.AbstractNetPacket
+import net.rwhps.server.net.netconnectprotocol.internal.server.*
 import net.rwhps.server.net.netconnectprotocol.internal.server.chatMessagePacketInternal
 import net.rwhps.server.net.netconnectprotocol.internal.server.gameTickCommandPacketInternal
 import net.rwhps.server.net.netconnectprotocol.internal.server.gameTickCommandsPacketInternal
@@ -30,10 +31,11 @@ import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
 import net.rwhps.server.util.encryption.Game
-import net.rwhps.server.util.encryption.Sha
+import net.rwhps.server.util.encryption.digest.DigestUtil
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.math.BigInteger
-import net.rwhps.server.util.log.Log.error
+
 /**
  * Provides support for most common packages for the server
  *
@@ -89,27 +91,6 @@ open class GameVersionPacket : AbstractNetPacket {
             }
         }
         return enc
-    }
-
-    @Throws(IOException::class)
-    override fun convertGameSaveDataPacket(packet: Packet): Packet {
-        GameInputStream(packet).use { stream ->
-            val o = GameOutputStream()
-            o.writeByte(stream.readByte())
-            o.writeInt(stream.readInt())
-            o.writeInt(stream.readInt())
-            o.writeFloat(stream.readFloat())
-            o.writeFloat(stream.readFloat())
-            o.writeBoolean(false)
-            o.writeBoolean(false)
-            stream.readBoolean()
-            stream.readBoolean()
-            stream.readString()
-            val bytes = stream.readStreamBytes()
-            o.writeString("gameSave")
-            o.flushMapData(bytes.size, bytes)
-            return o.createPacket(PacketType.SYNC)
-        }
     }
 
     // 0->本地 1->自定义 2->保存的游戏
@@ -245,10 +226,7 @@ open class GameVersionPacket : AbstractNetPacket {
             return cPacket!!
         }
 
-        val o = GameOutputStream()
-        o.writeString("exited")
-
-        val cachePacket = o.createPacket(PacketType.DISCONNECT)
+        val cachePacket = playerExitPacketInternal()
         Cache.packetCache.put("getExitPacket",cachePacket)
 
         return cachePacket
@@ -302,41 +280,8 @@ open class GameVersionPacket : AbstractNetPacket {
             writeIsInt(0)
             // Player Color
             writeIsInt(player.color)
-            // ? Not > 0
-            writeInt(0)
+            // Game Player Color
+            writeInt(if (player.color > 0) player.color else -1)
         }
-    }
-
-    @Throws(IOException::class)
-    override fun getPlayerConnectPacket(): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rwhps.forward")
-        out.writeInt(1)
-        out.writeInt(172)
-        out.writeInt(172)
-        return out.createPacket(PacketType.PREREGISTER_INFO_RECEIVE)
-    }
-
-    @Throws(IOException::class)
-    override fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet {
-        val out = GameOutputStream()
-        out.writeString("com.corrodinggames.rts")
-        out.writeInt(4)
-        out.writeInt(172)
-        out.writeInt(172)
-        out.writeString(name)
-
-        if (IsUtil.isBlank(passwd)) {
-            out.writeBoolean(false)
-        } else {
-            out.writeBoolean(true)
-            out.writeString(BigInteger(1, Sha.sha256Array(passwd!!)).toString(16).uppercase())
-        }
-
-        out.writeString("com.corrodinggames.rts.java")
-        out.writeString(uuid)
-        out.writeInt(678359601)
-        out.writeString(Game.connectKeyNew(key))
-        return out.createPacket(PacketType.REGISTER_PLAYER)
     }
 }

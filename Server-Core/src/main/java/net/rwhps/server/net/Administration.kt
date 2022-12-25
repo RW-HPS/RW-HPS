@@ -12,6 +12,7 @@ import net.rwhps.server.core.thread.Threads.addSavePool
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.plugin.PluginData
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.Time.getTimeSinceMillis
 import net.rwhps.server.util.Time.millis
@@ -30,8 +31,8 @@ class Administration(pluginData: PluginData) {
     val bannedUUIDs: Seq<String>
     val whitelist: Seq<String>
     val banQQ: Seq<Long>
-    val playerDataCache = net.rwhps.server.struct.ObjectMap<String, PlayerInfo>()
-    val playerAdminData: net.rwhps.server.struct.ObjectMap<String, PlayerAdminInfo>
+    val playerDataCache = ObjectMap<String, PlayerInfo>()
+    val playerAdminData: ObjectMap<String, PlayerAdminInfo>
 
     init {
         addChatFilter(object : ChatFilter {
@@ -53,7 +54,7 @@ class Administration(pluginData: PluginData) {
         bannedUUIDs = pluginData.getData("bannedUUIDs") { Seq() }
         whitelist = pluginData.getData("whitelist") { Seq() }
         banQQ = pluginData.getData("banQQ") { Seq() }
-        playerAdminData = pluginData.getData("playerAdminData") { net.rwhps.server.struct.ObjectMap() }
+        playerAdminData = pluginData.getData("playerAdminData") { ObjectMap() }
         addSavePool {
             pluginData.setData("bannedIPs", bannedIPs)
             pluginData.setData("bannedIP24", bannedIP24)

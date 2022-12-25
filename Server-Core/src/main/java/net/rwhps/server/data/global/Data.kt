@@ -16,8 +16,11 @@ import net.rwhps.server.data.base.BaseRelayPublishConfig
 import net.rwhps.server.data.base.BaseTestConfig
 import net.rwhps.server.game.Rules
 import net.rwhps.server.io.output.CompressOutputStream
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.I18NBundle
+import net.rwhps.server.util.alone.BadWord
 import net.rwhps.server.util.file.LoadIni
+import net.rwhps.server.util.game.CommandHandler
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -31,7 +34,8 @@ object Data {
     const val Plugin_Save_Path = "/data/save"
     const val Plugin_Cache_Path = "/data/cache"
     const val Plugin_Lib_Path = "/data/libs"
-    const val Plugin_GameCore_Lib_Path = "/data/coreLibs"
+    const val Plugin_GameCore_Data_Path = "/data/gameData"
+    const val Plugin_GameCore_Lib_Path = "$Plugin_GameCore_Data_Path/coreLibs"
     const val Plugin_Log_Path = "/data/log"
     const val Plugin_Maps_Path = "/data/maps"
     const val Plugin_Plugins_Path = "/data/plugins"
@@ -44,7 +48,7 @@ object Data {
     const val SERVER_ID = "net.rwhps.server"
     const val SERVER_ID_RELAY = "net.rwhps.server.relayCustomMode.Dr"
     const val SERVER_ID_RELAY_GET = "net.rwhps.server.relayGetUUIDHex.Dr"
-    const val SERVER_CORE_VERSION = "1.0.0-M2"
+    const val SERVER_CORE_VERSION = "1.0.1"
     const val TOPT_KEY = "net.rwhps.server.topt # RW-HPS Team"
     const val SERVER_RELAY_UUID = "RCN Team & Tiexiu.xyz Core Team"
     /** 单位数据缓存  */
@@ -53,17 +57,18 @@ object Data {
     @JvmField val LINE_SEPARATOR: String = System.getProperty("line.separator")
 
     /** 服务端 客户端命令  */
-    @JvmField val SERVER_COMMAND = net.rwhps.server.util.game.CommandHandler("")
-    @JvmField val CLIENT_COMMAND = net.rwhps.server.util.game.CommandHandler("/")
-    @JvmField val LOG_COMMAND = net.rwhps.server.util.game.CommandHandler("!")
-    @JvmField val RELAY_COMMAND = net.rwhps.server.util.game.CommandHandler(".")
+    @JvmField val SERVER_COMMAND = CommandHandler("")
+    @JvmField val CLIENT_COMMAND = CommandHandler("/")
+    @JvmField val LOG_COMMAND = CommandHandler("!")
+    @JvmField val RELAY_COMMAND = CommandHandler(".")
 
-    /**  */
-	@JvmField val MapsMap = net.rwhps.server.struct.ObjectMap<String, String>()
+    /** Map */
+	@JvmField val MapsMap = ObjectMap<String, String>()
 
     @JvmField val core = Application()
-    @JvmField val i18NBundleMap = net.rwhps.server.struct.ObjectMap<String, I18NBundle>(8)
+    @JvmField val i18NBundleMap = ObjectMap<String, I18NBundle>(8)
     @JvmField val urlData: LoadIni = LoadIni(Data::class.java.getResourceAsStream("/URL.ini")!!)
+    @JvmField val banWord: BadWord = BadWord()
 
     lateinit var config: BaseConfig
     lateinit var configTest: BaseTestConfig
@@ -82,5 +87,4 @@ object Data {
     @Volatile var exitFlag = false
 
     val headlessName: String = "RW-HPS Core Headless"
-
 }

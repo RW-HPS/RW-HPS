@@ -32,13 +32,15 @@ import net.rwhps.server.net.netconnectprotocol.internal.relay.fromRelayJumpsToAn
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerInitInfo
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeInternal
 import net.rwhps.server.net.netconnectprotocol.internal.relay.relayServerTypeReplyInternal
+import net.rwhps.server.struct.ObjectMap
 import net.rwhps.server.util.GameOtherUtil.getBetaVersion
 import net.rwhps.server.util.IsUtil
 import net.rwhps.server.util.PacketType
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.alone.annotations.MainProtocolImplementation
-import net.rwhps.server.util.log.Log.error
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log.debug
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.*
 import java.util.stream.IntStream
@@ -62,7 +64,6 @@ import java.util.stream.IntStream
  * @property netConnectAuthenticate Connection validity verification
  * @property relay                  Relay instance
  * @property site                   Connect the forwarding location within the RELAY
- * @property connectUUID            UUID of this connection
  * @property cachePacket            Cached Package
  * @property relaySelect            Function1<String, Unit>?
  * @property name                   player's name
@@ -89,8 +90,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
     protected var site = 0
 
-    protected val connectUUID = UUID.randomUUID().toString()
-
     protected var cachePacket: Packet? = null
         private set
 
@@ -108,12 +107,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     var playerRelay: PlayerRelay? = null
         internal set
 
+    // 172
+    protected val version2 = 999
+
     // Lazy loading reduces memory usage
     /** The server kicks the player's time data */
-    lateinit var relayKickData: net.rwhps.server.struct.ObjectMap<String, Int>
+    lateinit var relayKickData: ObjectMap<String,Int>
         protected set
     /** Server exits player data */
-    lateinit var relayPlayersData: net.rwhps.server.struct.ObjectMap<String, PlayerRelay>
+    lateinit var relayPlayersData: ObjectMap<String,PlayerRelay>
         protected set
 
     protected val bindSimpFun = TimeAndNumber(60,5)
@@ -124,6 +126,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     override fun setlastSentPacket(packet: Packet) {
+        /* 此协议下不被使用 */
     }
 
     override val version: String
@@ -160,7 +163,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 queryString = inStream.readIsString()
             }
             if (packetVersion >= 3) {
-                name = inStream.readString()
+                // Player Name
+                inStream.readString()
             }
             if (relay == null) {
                 if (IsUtil.isBlank(queryString) || "RELAYCN".equals(queryString, ignoreCase = true)) {
@@ -250,17 +254,39 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             if (playerRelay != null) {
                 val message: String = inStream.readString()
 
+                if (relay == null || relay!!.allmute) {
+                    return
+                }
+/*
+// RCN 选择性功能
+                if (relay!!.relayData.uplistStatus != Relay.RelayData.UpListStatus.UpIng && (!relay!!.isStartGame || relay!!.startGameTime > Time.concurrentSecond())) {
+                    if (Data.banWord.badWord(message).size > 0) {
+                        if (playerRelay!!.messageCount.checkStatus()) {
+                            // KICK 玩家
+                            relay!!.admin!!.relayKickData.put("KICK$registerPlayerId",Time.concurrentSecond()+120)
+                            relay!!.admin!!.relayKickData.put("KICK${connectionAgreement.ipLong24}", Time.concurrentSecond() + 120)
+                            kick("含有屏蔽词的话不应该连续发送")
+                            return
+                        } else {
+                            // 提醒玩家 并累计数
+                            sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("您已经连续多次发言包含屏蔽词 您不应该这样做", "RELAY_CN-Check", 5))
+                            playerRelay!!.messageCount.count++
+                            return
+                        }
+                    }
+                }
+*/
                 if (message.startsWith(".") || message.startsWith("-")) {
                     val response = Data.RELAY_COMMAND.handleMessage(message, this)
-                    if (response == null || response.type == net.rwhps.server.util.game.CommandHandler.ResponseType.noCommand) {
-                    } else if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+                    if (response == null || response.type == CommandHandler.ResponseType.noCommand) {
+                    } else if (response.type == CommandHandler.ResponseType.valid) {
+                        return
+                    } else if (response.type != CommandHandler.ResponseType.valid) {
                         val text: String = when (response.type) {
-                            net.rwhps.server.util.game.CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
-                            net.rwhps.server.util.game.CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
+                            CommandHandler.ResponseType.manyArguments -> "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
+                            CommandHandler.ResponseType.fewArguments -> "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                             else -> {
-                                if (!message.contains("self_")) {
-                                    sendResultPing(p)
-                                }
+                                sendResultPing(p)
                                 return
                             }
                         }
@@ -273,6 +299,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                         if (playerRelay!!.messageSimilarityCount.checkStatus()) {
                             // KICK 玩家
                             relay!!.admin!!.relayKickData.put("KICK$registerPlayerId",Time.concurrentSecond()+120)
+                            relay!!.admin!!.relayKickData.put("KICK${connectionAgreement.ipLong24}", Time.concurrentSecond() + 120)
                             kick("相同的话不应该连续发送")
                             return
                         } else {
@@ -285,10 +312,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     playerRelay!!.lastSentMessage = message
                 }
 
-                // Fix Mute no use command
-                if (!message.contains("self_") && !playerRelay!!.mute) {
-                    sendResultPing(p)
-                }
+                sendResultPing(p)
             } else {
                 disconnect()
             }
@@ -323,15 +347,15 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 relayKickData = relay!!.admin!!.relayKickData
                 relayPlayersData = relay!!.admin!!.relayPlayersData
             } else {
-                relayKickData = net.rwhps.server.struct.ObjectMap()
-                relayPlayersData = net.rwhps.server.struct.ObjectMap()
+                relayKickData = ObjectMap()
+                relayPlayersData = ObjectMap()
             }
 
             //Log.debug("sendRelayServerId","Set Admin");
             relay!!.admin = this
             //Log.debug(this == relay.getAdmin());
             val o = GameOutputStream()
-            if (clientVersion >= 172) {
+            if (clientVersion >= version2) {
                 o.writeByte(2)
                 o.writeBoolean(true)
                 o.writeBoolean(true)
@@ -426,7 +450,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             relay!!.setAbstractNetConnect(this)
             site = relay!!.getSite()
             val o = GameOutputStream()
-            if (clientVersion >= 172) {
+            if (clientVersion >= version2) {
                 o.writeByte(1)
                 o.writeInt(site)
                 // ?
@@ -440,7 +464,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             } else {
                 o.writeByte(0)
                 o.writeInt(site)
-                o.writeString(connectUUID)
+                o.writeString(registerPlayerId!!)
                 o.writeBoolean(false)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
             }
@@ -462,12 +486,12 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     }
 
     override fun relayRegisterConnection(packet: Packet) {
-        if (registerPlayerId == null) {
+        if (registerPlayerId.isNullOrBlank()) {
             try {
                 GameInputStream(packet).use { stream ->
                     stream.readString()
                     stream.skip(12)
-                    stream.readString()
+                    name = stream.readString()
                     stream.readIsString()
                     stream.readString()
                     if (IsUtil.isBlank(registerPlayerId)) {
@@ -498,6 +522,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                         return
                     } else {
                         relay!!.admin!!.relayKickData.remove("KICK$registerPlayerId")
+                        relay!!.admin!!.relayKickData.remove("KICK${connectionAgreement.ipLong24}")
                     }
                 }
             }
@@ -508,7 +533,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
     override fun addReRelayConnect() {
         try {
             val o = GameOutputStream()
-            if (clientVersion >= 172) {
+            if (clientVersion >= version2) {
                 o.writeByte(1)
                 o.writeInt(site)
                 // ?
@@ -521,7 +546,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             } else {
                 o.writeByte(0)
                 o.writeInt(site)
-                o.writeString(connectUUID)
+                o.writeString(registerPlayerId!!)
                 o.writeBoolean(false)
                 relay!!.admin!!.sendPacket(o.createPacket(PacketType.FORWARD_CLIENT_ADD))
             }
@@ -545,10 +570,7 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             GameInputStream(packet).use { inStream ->
                 val target = inStream.readInt()
                 val type = inStream.readInt()
-                if (IntStream.of(
-                        PacketType.DISCONNECT.typeInt,
-                        PacketType.HEART_BEAT.typeInt
-                ).anyMatch { i: Int -> i == type }) {
+                if (IntStream.of(PacketType.DISCONNECT.typeInt, PacketType.HEART_BEAT.typeInt).anyMatch { i: Int -> i == type }) {
                     return
                 }
                 inStream.skip(4)
@@ -570,7 +592,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                     PacketType.TEAM_LIST.typeInt -> {
                         if (!relay!!.isStartGame) {
                             abstractNetConnect?.let { UniversalAnalysisOfGamePackages.getPacketTeamData(GameInputStream(bytes,it.clientVersion),it.playerRelay!!) }
-                        } else {}
+                        }
+                        return
                     }
                     PacketType.RETURN_TO_BATTLEROOM.typeInt -> {
                         relay!!.isStartGame = false
@@ -648,29 +671,6 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 if (!relay!!.isStartGame) {
                     relay!!.admin!!.relayPlayersData.remove(registerPlayerId)
                 }
-                /* 退出投降 存在问题 自己想办法吧 (下个版本清除本注释)
-                val teamData = OrderedMap<Int,Int>()
-                val nowTime = Time.concurrentSecond()
-                val countSet = HashSet<Int>()
-                relay!!.admin!!.relayPlayersData.values().forEach {
-                    var count = teamData[it.team] ?:0
-                    teamData.put(it.team,if (it.disconnect && nowTime-it.disconnectTime > 120) count else ++count)
-                    countSet.add(it.team)
-                }
-
-                if (countSet.size != relay!!.admin!!.relayPlayersData.size) {
-                    teamData.each { t, n ->
-                        if (n == 0) {
-                            relay!!.admin!!.relayPlayersData.values().forEach {
-                                if (it.team == t) {
-                                    it.con.sendResultPing(Cache.packetCache["sendSurrenderPacket"])
-                                }
-                            }
-                            relay!!.sendMsg("队伍: [ ${t+1}] 全员断开, 因此 此队伍投降")
-                        }
-                    }
-                }
-                */
             } else {
                 Relay.serverRelayIpData.remove(ip)
                 // 房间开始游戏 或者 在列表
@@ -723,6 +723,10 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
 
         if ("C".equals(id[0].toString(), ignoreCase = true)) {
             id = id.substring(1)
+            if (id.isEmpty()) {
+                sendRelayServerType(Data.i18NBundle.getinput("relay.id.re"))
+                return
+            }
             if ("M".equals(id[0].toString(), ignoreCase = true)) {
                 id = id.substring(1)
                 if (checkLength(id)) {

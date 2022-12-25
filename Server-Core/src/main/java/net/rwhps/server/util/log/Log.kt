@@ -27,7 +27,7 @@ import java.text.MessageFormat
 object Log {
     /** 默认 WARN  */
     private var LOG_GRADE = 5
-    private lateinit var logPrint: (String) -> Unit
+    private lateinit var logPrint: (Boolean,String) -> Unit
     private val LOG_CACHE = StringBuilder()
 
     @JvmStatic
@@ -39,18 +39,20 @@ object Log {
 	fun setCopyPrint(system: Boolean) {
         logPrint =
             if (system) {
-                { text: String ->
-                    System.out.println(text)
+                { error:Boolean, text: String ->
+                    println(text)
 
-                    // Remove Color
-                    var textCache = text
-                    for (i in ColorCodes.VALUES.indices) {
-                        textCache = textCache.replace(ColorCodes.VALUES[i] , "")
+                    if (error) {
+                        // Remove Color
+                        var textCache = text
+                        for (i in ColorCodes.VALUES.indices) {
+                            textCache = textCache.replace(ColorCodes.VALUES[i], "")
+                        }
+                        LOG_CACHE.append(textCache).append(Data.LINE_SEPARATOR)
                     }
-                    LOG_CACHE.append(textCache).append(Data.LINE_SEPARATOR)
                 }
             } else {
-                { text: String ->
+                { _:Boolean, text: String ->
                     println(text)
                 }
             }
@@ -70,7 +72,7 @@ object Log {
      */
     @JvmStatic
     fun skipping(e: Any) {
-        logs(9, "SKIPPING", e)
+        skipping("SKIPPING",e)
     }
     @JvmStatic
     fun skipping(tag: Any, e: Any) {
@@ -192,7 +194,7 @@ object Log {
     @JvmStatic
     fun clog(text: String) {
         val textCache = "[" + getMilliFormat(1) + "] " + text
-        this.logPrint(formatColors("$textCache&fr"))
+        this.logPrint(false,formatColors("$textCache&fr"))
     }
 
     @JvmStatic
@@ -213,7 +215,7 @@ object Log {
     @JvmStatic
     fun saveLog() {
         val fileUtil = FileUtil.getFolder(Data.Plugin_Log_Path).toFile("Log.txt")
-        fileUtil.writeFile(logCache, fileUtil.file.length() <= 1024 * 1024)
+        fileUtil.writeFile(logCache, fileUtil.file.length() <= 512 * 1024)
     }
 
     /**
@@ -227,11 +229,11 @@ object Log {
         val stringWriter = StringWriter()
         val printWriter = PrintWriter(stringWriter)
         e.printStackTrace(printWriter)
-        logs(i, tag, stringWriter.buffer)
+        logs(i, tag, stringWriter.buffer, true)
     }
 
-    private fun logs(i: Int, tag: Any, e: Any) {
-        if (this.LOG_GRADE > i) {
+    private fun logs(i: Int, tag: Any, e: Any, error: Boolean = false) {
+        if (this.LOG_GRADE > i && !error) {
             return
         }
         val sb = StringBuilder()
@@ -251,6 +253,7 @@ object Log {
         // [Time] Tag:
         // Info
         sb.append("[").append(getMilliFormat(1)).append("] ").append(tag).append(": ")
+
         // 避免换行
         if (lines.isNotEmpty()) {
             sb.append(Data.LINE_SEPARATOR)
@@ -264,8 +267,7 @@ object Log {
         // 去掉最后的换行
         sb.deleteCharAt(sb.length -1)
 
-        this.logPrint(sb.toString())
-        //println(sb)
+        this.logPrint(error,sb.toString())
     }
 
     private fun formatColors(text: String): String {

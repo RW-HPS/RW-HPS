@@ -16,6 +16,7 @@ import java.io.IOException
 object FileCheck {
     /**
      * Requires parameter attributes for a file copy operation.
+     *
      * @param source the source file
      * @throws NullPointerException if any of the given `File`s are `null`.
      * @throws FileNotFoundException if the source does not exist.
@@ -27,6 +28,7 @@ object FileCheck {
 
     /**
      * Requires that the given `File` is a file.
+     *
      * @param file The `File` to check.
      * @param name The parameter name to use in the exception message.
      * @return the given file.
@@ -40,6 +42,7 @@ object FileCheck {
 
     /**
      * Check if the Path of the two instances are the same
+     *
      * @param file1 The first file to compare.
      * @param file2 The second file to compare.
      * @throws IllegalArgumentException if the given files' canonical representations are equal.
@@ -57,6 +60,7 @@ object FileCheck {
 
     /**
      * Requires that two file lengths are equal.
+     *
      * @param srcFile Source file.
      * @param destFile Destination file.
      * @param srcLen Source file length.
@@ -72,6 +76,7 @@ object FileCheck {
 
     /**
      * Requires that the given `File` exists and throws an [FileNotFoundException] if it doesn't.
+     *
      * @param file The `File` to check.
      * @param fileParamName The parameter name to use in the exception message in case of `null` input.
      * @return the given file.

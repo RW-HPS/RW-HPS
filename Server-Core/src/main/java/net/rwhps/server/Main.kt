@@ -32,6 +32,7 @@
 package net.rwhps.server
 
 import net.rwhps.server.command.CoreCommands
+import net.rwhps.server.command.LogCommands
 import net.rwhps.server.core.Initialization
 import net.rwhps.server.core.thread.Threads.newThreadCore
 import net.rwhps.server.custom.LoadCoreCustomPlugin
@@ -48,6 +49,7 @@ import net.rwhps.server.data.plugin.PluginManage.runOnEnable
 import net.rwhps.server.data.plugin.PluginManage.runRegisterEvents
 import net.rwhps.server.data.plugin.PluginManage.runRegisterGlobalEvents
 import net.rwhps.server.data.totalizer.TimeAndNumber
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Event
 import net.rwhps.server.game.EventGlobal
 import net.rwhps.server.game.event.EventGlobalType.ServerLoadEvent
@@ -57,10 +59,10 @@ import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.util.encryption.Base64.decodeString
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.file.FileUtil.Companion.setFilePath
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import net.rwhps.server.util.log.Log.clog
-import net.rwhps.server.util.log.Log.fatal
 import net.rwhps.server.util.log.Log.set
 import net.rwhps.server.util.log.Log.setCopyPrint
 import org.fusesource.jansi.AnsiConsole
@@ -90,10 +92,9 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
         /* 设置Log 并开启拷贝 */
-        set("ALL")
+        set("ERROR")
         setCopyPrint(true)
-        //Logger.getLogger("io.netty").level = Level.OFF
-        Logger.getLogger("io.netty").level = Level.ALL
+        Logger.getLogger("io.netty").level = Level.OFF
 
         /* 覆盖输入输出流 */
         inputMonitorInit()
@@ -112,30 +113,17 @@ object Main {
 
         Data.config = BaseConfig.stringToClass()
         Data.configTest = BaseTestConfig.stringToClass()
+
         Data.configRelayPublish = BaseRelayPublishConfig.stringToClass()
+
         Data.core.load()
         clog(Data.i18NBundle.getinput("server.hi"))
         clog(Data.i18NBundle.getinput("server.project.url"))
         clog(Data.i18NBundle.getinput("server.thanks"))
 
-
-        //FFAAnalysis().test()
-        /*
-        val a = FileUtil.getFolder(Data.Plugin_Data_Path,true).toFolder("c")
-        val aa = FileUtil.getFolder(Data.Plugin_Data_Path,true).toFile("Delicious-Bold.otf").readFileByte()
-        val bb = FileUtil.getFolder(Data.Plugin_Data_Path,true).toFile("Roboto-Regular.ttf").readFileByte()
-        a.fileList.eachAll {
-            Log.clog(it.name)
-            if (it.name.endsWith("ttf")) {
-                a.toFile(it.name).writeFileByte(bb)
-            } else {
-                a.toFile(it.name).writeFileByte(aa)
-            }
-        }*/
-
         /* 命令加载 */
         CoreCommands(Data.SERVER_COMMAND)
-        net.rwhps.server.command.LogCommands(Data.LOG_COMMAND)
+        LogCommands(Data.LOG_COMMAND)
         clog(Data.i18NBundle.getinput("server.load.command"))
 
         /* Event加载 */
@@ -163,15 +151,12 @@ object Main {
         runInit()
         clog(Data.i18NBundle.getinput("server.loadPlugin", loadSize))
         /* 默认直接启动服务器 */
-        val response = Data.SERVER_COMMAND.handleMessage(Data.config.DefStartCommand,
-            net.rwhps.server.func.StrCons { obj: String -> clog(obj) })
-        if (response != null && response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.noCommand) {
-            if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+        val response = Data.SERVER_COMMAND.handleMessage("start", StrCons { obj: String -> clog(obj) })
+        if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
+            if (response.type != CommandHandler.ResponseType.valid) {
                 clog("Please check the command , Unable to use StartCommand inside Config to start the server")
             }
         }
-
-        clog("Run JVM Pid : {0}",Data.core.pid.toString())
 
         /* 按键监听 */
         newThreadCore { inputMonitor() }
@@ -231,15 +216,14 @@ object Main {
             }
 
             try {
-                val response = Data.SERVER_COMMAND.handleMessage(line,
-                    net.rwhps.server.func.StrCons { obj: String -> clog(obj) })
-                if (response != null && response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.noCommand) {
-                    if (response.type != net.rwhps.server.util.game.CommandHandler.ResponseType.valid) {
+                val response = Data.SERVER_COMMAND.handleMessage(line, StrCons { obj: String -> clog(obj) })
+                if (response != null && response.type != CommandHandler.ResponseType.noCommand) {
+                    if (response.type != CommandHandler.ResponseType.valid) {
                         val text = when (response.type) {
-                            net.rwhps.server.util.game.CommandHandler.ResponseType.manyArguments -> {
+                            CommandHandler.ResponseType.manyArguments -> {
                                 "Too many arguments. Usage: " + response.command.text + " " + response.command.paramText
                             }
-                            net.rwhps.server.util.game.CommandHandler.ResponseType.fewArguments -> {
+                            CommandHandler.ResponseType.fewArguments -> {
                                 "Too few arguments. Usage: " + response.command.text + " " + response.command.paramText
                             }
                             else -> {
@@ -254,9 +238,9 @@ object Main {
                     clog("InputMonitor Idling")
                     return
                 } else {
-                    clog("InputMonitor Error")
-                    fatal(e)
                     idlingCount.count++
+                    clog("InputMonitor Error")
+                    Log.error(e)
                 }
             }
         }
@@ -332,3 +316,5 @@ object Main {
         , , ,,,:,,::::::::iiiiiiiiii:,:,:::::::::iiir;ri7vL77rrirri::
          :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
  */
+
+// 音无结弦之时，悦动天使之心；立于浮华之世，奏响天籁之音

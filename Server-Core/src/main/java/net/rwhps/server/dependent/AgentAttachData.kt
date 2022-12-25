@@ -9,6 +9,7 @@
 
 package net.rwhps.server.dependent
 
+import net.rwhps.server.util.log.exp.VariableException
 import java.lang.instrument.Instrumentation
 
 /**
@@ -18,8 +19,16 @@ import java.lang.instrument.Instrumentation
 open class AgentAttachData {
     protected val instrumentation: Instrumentation = instPrivate!!
 
+
     companion object {
         private var instPrivate: Instrumentation? = null
+            get() {
+                /* 避免Java没有初始化 Agent */
+                if (field == null) {
+                    throw VariableException("[Angent Init Error] Please check the JDK version, Use Java11 or Java11+")
+                }
+                return field
+            }
 
         /** JRE将在启动main()之前调用方法  */
         @JvmStatic

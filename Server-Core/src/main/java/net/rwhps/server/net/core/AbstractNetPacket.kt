@@ -91,15 +91,6 @@ interface AbstractNetPacket {
     fun getTeamDataPacket(startGame: Boolean = Data.game.isStartGame): CompressOutputStream
 
     /**
-     * 转换GameSave包
-     * @param packet packet
-     * @return Packet
-     * @throws IOException err
-     */
-    @Throws(IOException::class)
-    fun convertGameSaveDataPacket(packet: Packet): Packet
-
-    /**
      * 开始游戏
      * @return Packet
      * @throws IOException err
@@ -146,22 +137,4 @@ interface AbstractNetPacket {
      */
     @Throws(IOException::class)
     fun writePlayer(player: Player, stream: GameOutputStream, startGame: Boolean)
-
-    /**
-     * 获取连接包
-     * @return Packet
-     */
-    @Throws(IOException::class)
-    fun getPlayerConnectPacket(): Packet
-
-    /**
-     * 获取注册包
-     * @param name Player Name
-     * @param uuid Player UUID
-     * @param passwd Server Passwd
-     * @param key Server Register Key
-     * @return Packet
-     */
-    @Throws(IOException::class)
-    fun getPlayerRegisterPacket(name: String, uuid: String, passwd: String?, key: Int): Packet
 }

@@ -28,7 +28,9 @@ import net.rwhps.server.game.event.EventType.GameStartEvent
 import net.rwhps.server.util.IsUtil.notIsBlank
 import net.rwhps.server.util.IsUtil.notIsNumeric
 import net.rwhps.server.util.Time
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
+import net.rwhps.server.util.log.Log.error
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -38,7 +40,7 @@ import net.rwhps.server.util.log.Log.error
 /**
  * @author RW-HPS/Dr
  */
-internal class ClientCommands(handler: net.rwhps.server.util.game.CommandHandler) {
+internal class ClientCommands(handler: CommandHandler) {
     private val localeUtil = Data.i18NBundle
     private fun isAdmin(player: Player): Boolean {
         if (player.isAdmin) {
@@ -327,7 +329,9 @@ internal class ClientCommands(handler: net.rwhps.server.util.game.CommandHandler
                         return@register
                     }
 
-                    inPlayer.startUnit = if (IntStream.of(1, 2, 3, 4, 100, 101, 102, 103).anyMatch { it == args[1].toInt() }) args[1].toInt() else 1
+                    inPlayer.startUnit = if (IntStream.of(1, 2, 3, 4, 100, 101, 102, 103)
+                            .anyMatch { it == args[1].toInt() }
+                    ) args[1].toInt() else 1
                     sendTeamData()
                 }
             }

@@ -11,7 +11,7 @@ package net.rwhps.server.io.input
 
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.inandout.GameInputStreamAndOutputStream
-import net.rwhps.server.util.zip.gzip.GzipDecoder
+import net.rwhps.server.util.compression.gzip.GzipDecoder
 
 object CompressInputStream {
     @JvmStatic

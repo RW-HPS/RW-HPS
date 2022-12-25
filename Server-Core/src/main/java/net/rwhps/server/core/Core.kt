@@ -17,14 +17,20 @@ import kotlin.system.exitProcess
  * @author RW-HPS/Dr
  */
 object Core {
+    /**
+     * Exit and save data
+     */
     @JvmStatic
     fun exit() {
-        net.rwhps.server.core.NetServer.closeServer()
+        NetServer.closeServer()
         Data.core.save()
         close()
         exitProcess(0)
     }
 
+    /**
+     * Force quit
+     */
     @JvmStatic
     fun mandatoryExit() {
         exitProcess(0)

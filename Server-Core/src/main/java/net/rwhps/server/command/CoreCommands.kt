@@ -11,9 +11,8 @@ package net.rwhps.server.command
 
 import net.rwhps.server.command.relay.RelayCommands
 import net.rwhps.server.command.server.ServerCommands
-import net.rwhps.server.core.Call
-import net.rwhps.server.core.Core
-import net.rwhps.server.core.Initialization
+import net.rwhps.server.core.*
+import net.rwhps.server.core.ServiceLoader
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.base.BaseConfig
@@ -22,6 +21,7 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.mods.ModManage
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.dependent.HotLoadClass
+import net.rwhps.server.func.StrCons
 import net.rwhps.server.game.Rules
 import net.rwhps.server.game.event.EventGlobalType
 import net.rwhps.server.net.StartNet
@@ -31,6 +31,7 @@ import net.rwhps.server.plugin.PluginsLoad
 import net.rwhps.server.plugin.center.PluginCenter
 import net.rwhps.server.util.alone.annotations.NeedHelp
 import net.rwhps.server.util.file.FileUtil
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.game.Events
 import net.rwhps.server.util.log.Log
 import java.util.*
@@ -41,9 +42,9 @@ import net.rwhps.server.core.ServiceLoader
 /**
  * @author RW-HPS/Dr
  */
-class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
-    private fun registerCore(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("help", "serverCommands.help") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+class CoreCommands(handler: CommandHandler) {
+    private fun registerCore(handler: CommandHandler) {
+        handler.register("help", "serverCommands.help") { _: Array<String>?, log: StrCons ->
             log["Commands:"]
             for (command in handler.commandList) {
                 if (command.description.startsWith("#")) {
@@ -58,15 +59,15 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
         }
 
         @NeedHelp
-        handler.register("stop", "HIDE") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("stop", "HIDE") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size == 0) {
                 log["Server does not start"]
                 return@register
             }
-            net.rwhps.server.core.NetServer.closeServer()
+            NetServer.closeServer()
         }
 
-        handler.register("version", "serverCommands.version") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("version", "serverCommands.version") { _: Array<String>?, log: StrCons ->
             log[localeUtil.getinput("status.versionS", Data.core.javaHeap / 1024 / 1024, Data.SERVER_CORE_VERSION, NetStaticData.ServerNetType.name)]
             if (NetStaticData.ServerNetType.ordinal in IRwHps.NetType.ServerProtocol.ordinal..IRwHps.NetType.ServerTestProtocol.ordinal) {
                 log[localeUtil.getinput("status.versionS.server", Data.game.maps.mapName, Data.game.playerManage.playerAll.size, NetStaticData.RwHps.typeConnect.version, NetStaticData.RwHps.typeConnect.abstractNetConnect.version)]
@@ -76,7 +77,7 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
                 log[localeUtil.getinput("status.versionS.relay", size.get())]
             }
         }
-        handler.register("setlanguage","[HK/CN/RU/EN]" ,"serverCommands.setlanguage") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("setlanguage","[HK/CN/RU/EN]" ,"serverCommands.setlanguage") { arg: Array<String>, _: StrCons ->
             Initialization.initServerLanguage(Data.core.settings,arg[0])
         }
 
@@ -84,18 +85,18 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
         handler.register("exit", "serverCommands.exit") { Core.exit() }
     }
 
-    private fun registerInfo(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("plugins", "serverCommands.plugins") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+    private fun registerInfo(handler: CommandHandler) {
+        handler.register("plugins", "serverCommands.plugins") { _: Array<String>?, log: StrCons ->
             PluginManage.run { e: PluginsLoad.PluginLoadData? ->
                 log[localeUtil.getinput("plugin.info", e!!.name, e.description, e.author, e.version)]
             }
         }
-        handler.register("mods", "serverCommands.mods") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
-            ModManage.getModsList().eachAll {
-                log[localeUtil.getinput("mod.info", it)]
+        handler.register("mods", "serverCommands.mods") { arg: Array<String>?, log: StrCons ->
+            for ((index, name) in ModManage.getModsList().withIndex()){
+                log[localeUtil.getinput("mod.info", index,name)]
             }
         }
-        handler.register("maps", "serverCommands.maps") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("maps", "serverCommands.maps") { _: Array<String>?, log: StrCons ->
             val response = StringBuilder()
             val i = AtomicInteger(0)
             Data.game.mapsData.keys().forEach { k: String? ->
@@ -106,18 +107,18 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
         }
     }
 
-    private fun registerCorex(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("plugin", "<TEXT...>", "serverCommands.plugin") { arg: Array<String>, log: net.rwhps.server.func.StrCons ->
+    private fun registerCorex(handler: CommandHandler) {
+        handler.register("plugin", "<TEXT...>", "serverCommands.plugin") { arg: Array<String>, log: StrCons ->
             PluginCenter.pluginCenter.command(arg[0], log)
         }
     }
 
-    private fun registerStartServer(handler: net.rwhps.server.util.game.CommandHandler) {
-        handler.register("start", "serverCommands.start") { _: Array<String>?, log: net.rwhps.server.func.StrCons -> startServer(handler,IRwHps.NetType.ServerProtocol,log)}
-        handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: net.rwhps.server.func.StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
+    private fun registerStartServer(handler: CommandHandler) {
+        handler.register("start", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerProtocol,log)}
+        handler.register("starttest", "serverCommands.start") { _: Array<String>?, log: StrCons -> startServer(handler,IRwHps.NetType.ServerTestProtocol,log)}
 
 
-        handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("startrelay", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size > 0) {
                 log["The server is not closed, please close"]
                 return@register
@@ -132,11 +133,12 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
 
             NetStaticData.ServerNetType = IRwHps.NetType.RelayProtocol
             NetStaticData.RwHps =
-                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java).newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
+                ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
+                    .newInstance(IRwHps.NetType.RelayProtocol) as IRwHps
 
             handler.handleMessage("startnetservice") //5200 6500
         }
-        handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: net.rwhps.server.func.StrCons ->
+        handler.register("startrelaytest", "serverCommands.start") { _: Array<String>?, log: StrCons ->
             if (NetStaticData.startNet.size > 0) {
                 log["The server is not closed, please close"]
                 return@register
@@ -154,11 +156,11 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
                 ServiceLoader.getService(ServiceLoader.ServiceType.IRwHps,"IRwHps", IRwHps.NetType::class.java)
                     .newInstance(IRwHps.NetType.RelayMulticastProtocol) as IRwHps
 
-            handler.handleMessage("startnetservice")
+            handler.handleMessage("startnetservice 5200 5500")
         }
 
 
-        handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: net.rwhps.server.func.StrCons? ->
+        handler.register("startnetservice", "[sPort] [ePort]","HIDE") { arg: Array<String>?, _: StrCons? ->
             val startNetTcp = StartNet()
             NetStaticData.startNet.add(startNetTcp)
             Threads.newThreadCoreNet {
@@ -188,7 +190,7 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
      * @param netType NetType        协议
      * @param log StrCons            Log打印
      */
-    private fun startServer(handler: net.rwhps.server.util.game.CommandHandler, netType: IRwHps.NetType, log: net.rwhps.server.func.StrCons) {
+    private fun startServer(handler: CommandHandler ,netType: IRwHps.NetType, log: StrCons) {
         if (NetStaticData.startNet.size > 0) {
             log["The server is not closed, please close"]
             return
@@ -221,12 +223,13 @@ class CoreCommands(handler: net.rwhps.server.util.game.CommandHandler) {
 
 
         // Test (孵化器）
-        handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("log", "[a...]", "serverCommands.exit") { _: Array<String>, _: StrCons ->
             HotLoadClass().load(FileUtil.getFile("a.class").readFileByte())
         }
-        handler.register("logg", "<1>", "serverCommands.exit") { _: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("logg", "serverCommands.exit") { _: Array<String>, _: StrCons ->
+
         }
-        handler.register("kc", "<1>", "serverCommands.exit") { arg: Array<String>, _: net.rwhps.server.func.StrCons ->
+        handler.register("kc", "<1>", "serverCommands.exit") { arg: Array<String>, _: StrCons ->
             val site = arg[0].toInt() - 1
             val player = Data.game.playerManage.getPlayerArray(site)
             player!!.con!!.disconnect()

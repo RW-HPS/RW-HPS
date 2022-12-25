@@ -19,6 +19,7 @@ import net.rwhps.server.io.packet.Packet
 import net.rwhps.server.net.core.ConnectionAgreement
 import net.rwhps.server.struct.Seq
 import net.rwhps.server.util.PacketType
+import net.rwhps.server.util.game.CommandHandler
 import net.rwhps.server.util.log.Log
 import java.io.IOException
 import kotlin.math.min
@@ -165,7 +166,7 @@ class GameVersionServerList(connectionAgreement: ConnectionAgreement) : GameVers
     override fun receiveChat(p: Packet) {
         GameInputStream(p).use { stream ->
             val message: String = stream.readString()
-            var response: net.rwhps.server.util.game.CommandHandler.CommandResponse? = null
+            var response: CommandHandler.CommandResponse? = null
 
             // Msg Command
             if (message.startsWith(".") || message.startsWith("-") || message.startsWith("_")) {

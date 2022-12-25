@@ -14,11 +14,14 @@ import net.rwhps.server.net.core.AbstractNetPacket
 import net.rwhps.server.net.core.IRwHps
 import net.rwhps.server.net.core.TypeConnect
 import net.rwhps.server.net.core.server.AbstractNetConnect
+import net.rwhps.server.util.ReflectionUtils
 import net.rwhps.server.util.log.exp.ImplementedException
 import net.rwhps.server.util.log.exp.VariableException
 import java.lang.reflect.Constructor
 
 /**
+ * Service loader module for RW-HPS
+ * SIP without Java
  * @author RW-HPS/Dr
  */
 object ServiceLoader {
@@ -26,16 +29,16 @@ object ServiceLoader {
     private val ServiceObjectData:MutableMap<String,Value<*>> = HashMap()
 
     /**
-     * 获取服务实例 (有参)
-     * @param serviceType ServiceType            : 服务类型
-     * @param serviceName String                 : 名称
-     * @param parameterTypes Array<out Class<*>> : 构造参数
-     * @return Constructor<*>                    : 实例
+     * Get service instance
+     * @param serviceType ServiceType            : Service type
+     * @param serviceName String                 : Name
+     * @param parameterTypes Array<out Class<*>> : Construction Parameters
+     * @return Constructor<*>                    : Constructor
      */
     fun getService(serviceType: ServiceType, serviceName: String, vararg parameterTypes: Class<*>): Constructor<*>  {
         val serviceClass = ServiceLoaderData[serviceType.name+serviceName]
         if (serviceClass != null) {
-            return net.rwhps.server.util.ReflectionUtils.accessibleConstructor(serviceClass, *parameterTypes)
+            return ReflectionUtils.accessibleConstructor(serviceClass, *parameterTypes)
         } else {
             throw ImplementedException("${serviceType.name}:$serviceName")
         }
@@ -67,10 +70,10 @@ object ServiceLoader {
     @JvmOverloads
     @Throws(VariableException.TypeMismatchException::class)
     fun addService(serviceType: ServiceType, serviceName: String, service: Class<*>, cover: Boolean = false) {
-        if (net.rwhps.server.util.ReflectionUtils.findSuperClass(service,serviceType.classType)) {
+        if (ReflectionUtils.findSuperClass(service,serviceType.classType)) {
             throw VariableException.TypeMismatchException("[AddService] ${serviceType.classType} : ${service.name}")
         }
-        // 跳过已经存在的 只取第一个
+        // 跳过已经存在的
         if (ServiceLoaderData.containsKey(serviceType.name+serviceName) && !cover) {
             return
         }
@@ -82,7 +85,7 @@ object ServiceLoader {
         val serviceClass = ServiceLoaderData[serviceType.name+serviceName]
         var serviceObject = ServiceObjectData[serviceType.name+serviceName]
         if (serviceClass != null) {
-            serviceObject = Value(net.rwhps.server.util.ReflectionUtils.accessibleConstructor(serviceClass, IRwHps.NetType::class.java).newInstance(netType))
+            serviceObject = Value(ReflectionUtils.accessibleConstructor(serviceClass, IRwHps.NetType::class.java).newInstance(netType))
         }
         return serviceObject?.data as T
     }

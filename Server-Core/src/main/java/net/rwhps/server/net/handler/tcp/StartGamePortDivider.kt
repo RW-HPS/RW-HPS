@@ -10,17 +10,16 @@
 package net.rwhps.server.net.handler.tcp
 
 import io.netty.channel.socket.SocketChannel
-import net.rwhps.server.net.StartNet
 import net.rwhps.server.net.core.AbstractNet
 
 /**
- * @author HuiAnxiaoxing
+ * @author HuiAnXiaoXing
  * @author RW-HPS/Dr
  */
-internal class StartGamePortDivider(startNet: StartNet) : AbstractNet(startNet) {
+internal class StartGamePortDivider : AbstractNet() {
     private val divider: GamePortDivider = GamePortDivider(this)
     
-    var socketChannel: SocketChannel? = null
+    private var socketChannel: SocketChannel? = null
 
     override fun initChannel(socketChannel: SocketChannel) {
         this.socketChannel = socketChannel

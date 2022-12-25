@@ -2,9 +2,10 @@
 **Welcome to provide better translation**
 
 # New version under development
-- [ ] Use XVFB
 - [x] Use Headless Lwjgl
-
+  
+Welcome everyone to come to PR. 
+We are currently in need of refactoring (EventNetDocs), welcome to provide better ideas
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
 ![](https://github.com/RW-HPS/RW-HPS/actions/workflows/gradle.yml/badge.svg?branch=master)
@@ -33,9 +34,11 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 **Game**
 - Basic Game
 - Game reconnection
+- Check Data
 - Custom map
 - Load Save Game
 - Mods Support
+- Replay generate
 
 **Ex**
 - Loading plugins
@@ -51,9 +54,7 @@ Despite most of the things you can do in a normal game, you may also do a lot of
 </details>
 
 #### Currently to be completed
-- [x] Analog Layer
 - [ ] Vote (Bug :( )
-- [x] 1.15.P*
 - [ ] Hot modify game progress
 - [ ] GamePanel
 
@@ -105,11 +106,11 @@ Please use .help in the game to see more
 ## version collection
 The game corresponds to the final server version collection
 
-| Game Version |   RW-HPS version   |                             Download Link                             |
+| Game Version |   RW-HPS version   |                              Download Link                            |
 |:------------:|:------------------:|:---------------------------------------------------------------------:|
-|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                Delete                                 |
-| ~~1.15.P8~~  |     ~~6.0.1~~      |                                Delete                                |
-|     1.15     |      1.0.0-M2      | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0-M2) |
+|   ~~1.14~~   | ~~6.0.0-M3（beta）~~ |                                 Delete                                |
+| ~~1.15.P8~~  |     ~~6.0.1~~      |                                 Delete                                |
+|     1.15     |      1.0.0      | [Go to download](https://github.com/RW-HPS/RW-HPS/releases/tag/1.0.0) |
 
 ## Sponsorship
 RW-HPS is a open source project released under AGPL V3. However, the amount of work required to maintain and develop new features for the project is not sustainable without your generous dedications.

@@ -163,8 +163,7 @@ interface AbstractNetConnectServer {
         }
     }
 
-    fun sync() {
-    }
+    fun sync()
 
     /**
      * Server type

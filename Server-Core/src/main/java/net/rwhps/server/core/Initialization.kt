@@ -9,6 +9,7 @@
 
 package net.rwhps.server.core
 
+import net.rwhps.server.Main
 import net.rwhps.server.core.ServiceLoader.ServiceType
 import net.rwhps.server.core.thread.CallTimeTask
 import net.rwhps.server.core.thread.Threads
@@ -110,10 +111,10 @@ class Initialization {
     }
 
     private fun loadLang() {
-        Data.i18NBundleMap.put("CN", I18NBundle(net.rwhps.server.Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
-        Data.i18NBundleMap.put("HK", I18NBundle(net.rwhps.server.Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
-        Data.i18NBundleMap.put("RU", I18NBundle(net.rwhps.server.Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
-        Data.i18NBundleMap.put("EN", I18NBundle(net.rwhps.server.Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
+        Data.i18NBundleMap.put("CN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_CN.properties")!!))
+        Data.i18NBundleMap.put("HK", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_zh_HK.properties")!!))
+        Data.i18NBundleMap.put("RU", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_ru_RU.properties")!!))
+        Data.i18NBundleMap.put("EN", I18NBundle(Main::class.java.getResourceAsStream("/bundles/GA_en_US.properties")!!))
 
         // Default use EN
         Data.i18NBundle = Data.i18NBundleMap["EN"]
@@ -213,7 +214,7 @@ class Initialization {
         internal fun initServerLanguage(pluginData: PluginData, country: String = "") {
             val serverCountry =
                 if (country.isBlank()) {
-                    pluginData.getData("serverCountry", net.rwhps.server.func.Prov {
+                    pluginData.getData("serverCountry") {
                         val countryUrl = HttpRequestOkHttp.doGet(Data.urlData.readString("Get.ServerLanguage.Bak"))
 
                         when {
@@ -222,7 +223,7 @@ class Initialization {
                             countryUrl.contains("俄罗斯") -> "RU"
                             else -> "EN"
                         }
-                    })
+                    }
                 } else {
                     when {
                         country.contains("HK") || country.contains("CN") || country.contains("RU") -> country
@@ -279,7 +280,7 @@ class Initialization {
                     val PlayerSize: Int                     = AtomicInteger().also { NetStaticData.startNet.eachAll { e: StartNet -> it.addAndGet(e.getConnectSize()) } }.get(),
                     val RoomAllSize: Int                    = Relay.roomAllSize,
                     val RoomNoStartSize: Int                = Relay.roomNoStartSize,
-                    val RoomPublicListSize: Int             = Relay.roomPublicSize,
+                    val RoomPublicListSize: Int             = 0,
                     val PlayerVersion: Map<Int,Int>         = Relay.getAllRelayVersion(),
                     val IpPlayerCountry: Map<String,Int>    = Relay.getAllRelayIpCountry()
                 )

@@ -11,15 +11,17 @@ package net.rwhps.server.util.file
 
 import net.rwhps.server.data.json.Json
 import net.rwhps.server.data.json.Json.Companion.toJson
+import net.rwhps.server.struct.OrderedMap
 import net.rwhps.server.util.IsUtil.isBlank
 import net.rwhps.server.util.file.FileUtil.Companion.getFolder
 import net.rwhps.server.util.log.Log.clog
+import net.rwhps.server.util.log.Log.error
 
 /**
  * @author RW-HPS/Dr
  */
 class LoadConfig {
-    private val data = net.rwhps.server.struct.OrderedMap<String, Any>()
+    private val data = OrderedMap<String, Any>()
     private val fileUtil: FileUtil
 
     constructor(file: String, isFile: Boolean) {

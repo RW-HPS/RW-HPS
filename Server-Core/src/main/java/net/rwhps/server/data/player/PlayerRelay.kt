@@ -50,6 +50,7 @@ class PlayerRelay(
         private set
 
     val messageSimilarityCount = TimeAndNumber(60,5)
+    val messageCount = TimeAndNumber(60,10)
 
     var disconnect: Boolean = false
         set(value) {
