@@ -18,6 +18,7 @@ import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.player.Player
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.game.GameUnitType
+import net.rwhps.server.game.GameUnitType.GameUnits
 import net.rwhps.server.game.event.EventType.*
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
@@ -334,23 +335,42 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     val boolean1 = inStream.readBoolean()
                     outStream.writeBoolean(boolean1)
                     if (boolean1) {
+                        // 操作类型
                         status = inStream.readInt()
                         outStream.writeInt(status)
-                        val int1 = inStream.readInt()
-                        outStream.writeInt(int1)
-                        if (int1 == -2) {
+                        // 单位类型
+                        val unitType = inStream.readInt()
+                        outStream.writeInt(unitType)
+                        if (unitType == -2) {
                             val nameUnit = inStream.readString()
                             //Log.error(nameUnit)
                             outStream.writeString(nameUnit)
                         }
-                        outStream.transferToFixedLength(inStream,28)
+                        val x = inStream.readFloat()
+                        val y = inStream.readFloat()
+                        outStream.writeFloat(x)
+                        outStream.writeFloat(y)
+
+                        // 玩家操作
+                        val gameActions = GameUnitType.GameActions.from(status)
+                        // 操作单位
+                        val gameUnits: GameUnits = GameUnits.from(unitType)
+                        // 玩家操作单位事件
+                        val playerOperationUnitEvent =
+                            PlayerOperationUnitEvent(player, gameActions, gameUnits, x, y)
+                        Events.fire(playerOperationUnitEvent)
+                        if(!playerOperationUnitEvent.resultStatus){
+                            return
+                        }
+                        outStream.transferToFixedLength(inStream,20)
                         outStream.writeIsString(inStream)
                     }
                     outStream.transferToFixedLength(inStream,10)
                     val boolean3 = inStream.readBoolean()
                     outStream.writeBoolean(boolean3)
                     if (boolean3) {
-                        outStream.transferToFixedLength(inStream,8)
+                        // float float
+                        outStream.transferToFixedLength(inStream, 8)
                     }
                     outStream.writeBoolean(inStream.readBoolean())
                     val int2 = inStream.readInt()
@@ -363,12 +383,13 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
                     if (boolean4) {
                         outStream.writeByte(inStream.readByte())
                     }
-
-                    val boolean5 = inStream.readBoolean()
-                    outStream.writeBoolean(boolean5)
-                    if (boolean5) {
+                    // Map Ping
+                    val mapPing = inStream.readBoolean()
+                    outStream.writeBoolean(mapPing)
+                    if (mapPing) {
                         if (player.getData<String>("Summon") != null) {
-                            gameSummon(player.getData<String>("Summon")!!,inStream.readFloat(),inStream.readFloat())
+                            // 单位生成
+                            gameSummon(player.getData<String>("Summon")!!, inStream.readFloat(), inStream.readFloat())
                             player.removeData("Summon")
                             return
                         } else {
@@ -445,25 +466,38 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
     //@Throws(IOException::class)
     override fun getPlayerInfo(p: Packet): Boolean {
         try {
+
             GameInputStream(p).use { stream ->
-                stream.readString()
-                Log.debug("本包协议版本",stream.readInt())
+                // 游戏包名
+                val packegeName = stream.readString()
+                // 本包协议版本
+                val packetVersion = stream.readInt()
+                // 客户端版本
                 val version = stream.readInt()
-                Log.debug("客户端版本",version)
-                Log.debug("客户端包协议版本",stream.readInt())
+                // 客户端协议版本
+                val agreementVersion = stream.readInt()
+                // 玩家游戏名
                 var name = stream.readString()
-                Log.debug("name", name)
+                // 连接密码
                 val passwd = stream.readIsString()
-                Log.debug("passwd", passwd)
-                stream.readString()
+                // 未知
+                val unknown = stream.readString()
+                // uuid
                 val uuid = stream.readString()
+                // 未知
+                val unknown1 = stream.readInt()
+                // token
+                val token = stream.readString()
+
+                Log.debug("本包协议版本", packetVersion)
+                Log.debug("客户端版本", version)
+                Log.debug("客户端包协议版本", agreementVersion)
+                Log.debug("name", name)
+                Log.debug("passwd", passwd)
                 Log.debug("uuid", uuid)
                 Log.debug("?", stream.readInt())
-                val token = stream.readString()
                 Log.debug("token", token)
                 Log.debug(token, connectKey!!)
-
-
 
                 if (supportedVersionInt > version) {
                     sendKick("Your 'Rusted Warfare' Game is out of date, please update")
@@ -570,7 +604,7 @@ open class GameVersionServer(connectionAgreement: ConnectionAgreement) : Abstrac
             // Game Pkg Name
             stream.readString()
             // 返回都是1 有啥用
-            stream.readInt()
+            var playerCount = stream.readInt()
             stream.readInt()
             stream.readInt()
             val o = GameOutputStream()

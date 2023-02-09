@@ -116,16 +116,21 @@ class Event : AbstractEvent {
     }
 
     override fun registerPlayerLeaveEvent(player: Player) {
-        if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 1) {
+        if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 0) {
             try {
-                var p = Data.game.playerManage.playerGroup[0]
-                if (p.name == Data.headlessName) {
-                    p = Data.game.playerManage.playerGroup[1]
+                Data.game.playerManage.playerGroup.forEach { player ->
+                    if (!player.headlessDevice) {
+                        var p = Data.game.playerManage.playerGroup[0]
+                        if (p.name == Data.headlessName) {
+                            p = Data.game.playerManage.playerGroup[1]
+                        }
+                        p.isAdmin = true
+                        Call.upDataGameData()
+                        Call.sendSystemMessage("give.ok", p.name)
+                        return@forEach
+                    }
                 }
-                p.isAdmin = true
-                Call.upDataGameData()
                 player.isAdmin = false
-                Call.sendSystemMessage("give.ok", p.name)
             } catch (ignored: IndexOutOfBoundsException) {
             }
         }

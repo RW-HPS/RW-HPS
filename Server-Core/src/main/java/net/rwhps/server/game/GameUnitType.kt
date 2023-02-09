@@ -10,6 +10,10 @@
 
 package net.rwhps.server.game
 
+import net.rwhps.server.struct.IntMap
+import net.rwhps.server.util.inline.ifNullResult
+import net.rwhps.server.util.log.exp.VariableException
+
 class GameUnitType {
     enum class GameActions {
         MOVE,
@@ -28,7 +32,26 @@ class GameUnitType {
         FOLLOW,
         TRIGGERACTION,
         TRIGGERACTIONWHENINRANGE,
-        SETPASSIVETARGET
+        SETPASSIVETARGET,
+        UNKNOWN;
+
+        companion object {
+            private val typeMap: IntMap<GameActions> = IntMap(GameActions.values().size)
+            init {
+                GameActions.values().forEach {
+                    if (typeMap.containsKey(it.ordinal)) {
+                        throw VariableException.RepeatAddException("[PacketType]")
+                    }
+                    typeMap[it.ordinal] = it
+                }
+            }
+
+            // 进行全匹配 查看是否在游戏内置列表中
+            fun from(type: String?): GameActions? =
+                GameActions.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
+            fun from(type: Int): GameActions =
+                typeMap[type].ifNullResult({ it }) { UNKNOWN }
+        }
     }
 
     enum class GameUnits {
@@ -82,15 +105,30 @@ class GameUnitType {
         turretT3,
         damagingBorder,
         zoneMarker,
-        editorOrBuilder;
-            //modularSpider
+        editorOrBuilder,
+        UNKNOWN;
+        //modularSpider
 
         companion object {
+            private val typeMap: IntMap<GameUnits> = IntMap(GameUnits.values().size)
+
+            init {
+                values().forEach {
+                    if (typeMap.containsKey(it.ordinal)) {
+                        throw VariableException.RepeatAddException("[PacketType]")
+                    }
+                    typeMap[it.ordinal] = it
+                }
+            }
+
             // 进行全匹配 查看是否在游戏内置列表中
-            fun from(type: String?): GameUnits? = GameUnits.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
+            fun from(type: String?): GameUnits? =
+                GameUnits.values().find { it.name == type || it.name.lowercase() == type?.lowercase() }
+            fun from(type: Int): GameUnits =
+                typeMap[type].ifNullResult({ it }) { UNKNOWN }
         }
     }
-    
+
     enum class GameCustomUnits {
         aaBeamGunship,
         bomber,
@@ -184,5 +222,27 @@ class GameUnitType {
         scout,
         heavyArtillery,
         antiAirTurretFlak,
+        UNKNOWN;
+
+        companion object {
+            private val typeMap: IntMap<GameCustomUnits> = IntMap(GameCustomUnits.values().size)
+            init {
+                GameCustomUnits.values().forEach {
+                    if (typeMap.containsKey(it.ordinal)) {
+                        throw VariableException.RepeatAddException("[PacketType]")
+                    }
+                    typeMap[it.ordinal] = it
+                }
+            }
+
+            // 进行全匹配 查看是否在游戏内置列表中
+            fun from(type: String?): GameCustomUnits? =
+                GameCustomUnits.values().find { it.name == type
+                        || it.name.lowercase() == type?.lowercase()
+                }
+
+            fun from(type: Int): GameCustomUnits =
+                typeMap[type].ifNullResult({ it }) { UNKNOWN }
+        }
     }
 }

@@ -99,7 +99,10 @@ data class BaseConfig(
 
     val WebSupport: Boolean = false,
 
-    var RunPid: Long = 0
+    var RunPid: Long = 0,
+
+    /** 倍率锁定 **/
+    var IncomeLock: Boolean = false
 ) {
 
     private fun checkValue() {

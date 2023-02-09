@@ -9,7 +9,9 @@
 
 package net.rwhps.server.util
 
+import java.net.Inet4Address
 import java.net.InetAddress
+import java.net.NetworkInterface
 import java.net.UnknownHostException
 
 /**
@@ -25,7 +27,21 @@ object IpUtil {
     @JvmStatic
     @Throws(UnknownHostException::class)
     fun getPrivateIp(): String? {
-        return InetAddress.getLocalHost().hostAddress
+        val allNetInterfaces = NetworkInterface.getNetworkInterfaces()
+        var ip: InetAddress? = null
+        while (allNetInterfaces.hasMoreElements()) {
+            val netInterface: NetworkInterface = allNetInterfaces.nextElement()
+            if (netInterface.isLoopback || netInterface.isVirtual || !netInterface.isUp) {
+                continue
+            } else {
+                val addresses = netInterface.inetAddresses
+                while (addresses.hasMoreElements()) {
+                    ip = addresses.nextElement()
+                    if (ip is Inet4Address) return ip.getHostAddress()
+                }
+            }
+        }
+        return null
     }
 
     @JvmStatic

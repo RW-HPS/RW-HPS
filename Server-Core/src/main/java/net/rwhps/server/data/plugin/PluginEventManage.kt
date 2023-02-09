@@ -122,6 +122,15 @@ internal class PluginEventManage {
                     }
                 }
             }
+
+            /* Sync */
+            Events.on(PlayerOperationUnitEvent::class.java) { e: PlayerOperationUnitEvent ->
+                pluginEventData.eachAll { p: AbstractEvent ->
+                    e.resultStatus = p.registerPlayerOperationUnitEvent(e.player, e.gameActions, e.gameUnits, e.x, e.y)
+                }
+            }
+
+
         }
 
         private fun registerGlobalEventAll() {

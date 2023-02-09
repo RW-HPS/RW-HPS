@@ -42,7 +42,7 @@ class Player(
 ) {
     internal var playerPrivateData: AbstractPlayerData = HessModuleManage.hps.gameData.getDefPlayerData()
 
-    var headlessDevice = checkHess(uuid)
+    var headlessDevice = false
 
     /** is Admin  */
 	@JvmField
@@ -54,8 +54,9 @@ class Player(
         set(value) { watch = (value == -3) ; field = value }
     /** List position  */
 	var site = 0
-        set(value) { color = value % 10 ; field = value }
-
+        set(value) {
+            color = value; field = value
+        }
     /** */
     var credits
         get() =  if (!Data.game.isStartGame) Data.game.credits else playerPrivateData.credits
@@ -92,6 +93,9 @@ class Player(
     var startUnit = Data.game.initUnit
     /** */
     var color = 0
+        set(value) {
+            field = value % 10
+        }
     /** Ping */
     var ping = 50
 
@@ -250,6 +254,10 @@ class Player(
 
     override fun hashCode(): Int {
         return Objects.hash(uuid)
+    }
+
+    init {
+        headlessDevice = checkHess(uuid)
     }
 
     companion object {

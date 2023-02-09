@@ -283,11 +283,18 @@ object Call {
         }
 
         override fun run() {
+            // 排除观战玩家的数量
+            var playerSize = 0
+            val playerGroup = Data.game.playerManage.playerGroup
+            for (player in playerGroup) {
+                if (!player.watch) {
+                    playerSize++
+                }
+            }
             // 检测人数是否符合Gameover
-
-            when (Data.game.playerManage.playerGroup.size) {
+            when (playerSize) {
                 0 -> gr()
-                1,2 -> if (oneSay) {
+                1 -> if (oneSay) {
                     oneSay = false
                     sendSystemMessageLocal("gameOver.oneMin")
                     newCountdown(CallTimeTask.GameOverTask, 1, TimeUnit.MINUTES) {gr()}

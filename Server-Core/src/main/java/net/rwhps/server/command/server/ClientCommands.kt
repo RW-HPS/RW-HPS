@@ -220,6 +220,10 @@ internal class ClientCommands(handler: CommandHandler) {
         }
         handler.register("income", "<income>", "clientCommands.income") { args: Array<String>, player: Player ->
             if (isAdmin(player)) {
+                if (Data.config.IncomeLock) {
+                    player.sendSystemMessage("倍率已锁定")
+                    return@register
+                }
                 if (Data.game.isStartGame) {
                     player.sendSystemMessage(player.i18NBundle.getinput("err.startGame"))
                     return@register

@@ -11,6 +11,7 @@ package net.rwhps.server.game.event
 
 import net.rwhps.server.data.event.GameOverData
 import net.rwhps.server.data.player.Player
+import net.rwhps.server.game.GameUnitType
 
 /**
  * @author RW-HPS/Dr
@@ -55,6 +56,19 @@ class EventType {
         var resultName = ""
     }
 
-    /** 玩家操作单位事件 */
-    class PlayerOperationUnitEvent(val player: Player, val playerUnit: EventLambdaType.PlayerUnit)
+    /** 玩家操作单位事件
+     * @param gameActions 操作类型
+     * @param gameUnits 操作单位
+     * @param x 操纵坐标x
+     * @param y 操作坐标y
+     */
+    class PlayerOperationUnitEvent(
+        val player: Player, val gameActions: GameUnitType.GameActions,
+        val gameUnits: GameUnitType.GameUnits, val x: Float, val y: Float){
+        // 操作是否有效
+        @JvmField
+        var resultStatus = true
+    }
+
+
 }
