@@ -118,16 +118,12 @@ class Event : AbstractEvent {
     override fun registerPlayerLeaveEvent(player: Player) {
         if (Data.config.OneAdmin && player.isAdmin && Data.game.playerManage.playerGroup.size > 0) {
             try {
-                Data.game.playerManage.playerGroup.forEach { player ->
-                    if (!player.headlessDevice) {
-                        var p = Data.game.playerManage.playerGroup[0]
-                        if (p.name == Data.headlessName) {
-                            p = Data.game.playerManage.playerGroup[1]
-                        }
+                for (p in Data.game.playerManage.playerGroup) {
+                    if (!p.headlessDevice) {
                         p.isAdmin = true
                         Call.upDataGameData()
                         Call.sendSystemMessage("give.ok", p.name)
-                        return@forEach
+                        break
                     }
                 }
                 player.isAdmin = false
