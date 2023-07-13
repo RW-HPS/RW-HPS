@@ -160,15 +160,15 @@ class PlayerConnectX(
                         }
                     }
                     //
-                    PacketType.TICK.typeInt -> {
-                        GameInputStream(packetHess.c).use {
-                            it.skip(4)
-                            val size = it.readInt()
-                            for (i in 0 until  size) {
-                                serverConnect.receiveCommand(Packet(PacketType.GAMECOMMAND_RECEIVE,it.getDecodeStream(false).readAllBytes()))
-                            }
-                        }
-                    }
+//                    PacketType.TICK.typeInt -> {
+//                        GameInputStream(packetHess.c).use {
+//                            it.skip(4)
+//                            val size = it.readInt()
+//                            for (i in 0 until  size) {
+//                                serverConnect.receiveCommand(Packet(PacketType.GAMECOMMAND_RECEIVE,it.getDecodeStream(false).readAllBytes()))
+//                            }
+//                        }
+//                    }
                 }
             }
         }

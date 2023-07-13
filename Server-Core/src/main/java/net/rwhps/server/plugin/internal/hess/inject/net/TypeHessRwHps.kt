@@ -54,7 +54,9 @@ open class TypeHessRwHps : TypeConnect {
                 PacketType.CHAT_RECEIVE -> {
                     con.receiveChat(packet)
                 }
-
+                PacketType.GAMECOMMAND_RECEIVE -> {
+                    con.receiveCommand(packet)
+                }
                 else -> {}
             }
             con.recivePacket(packet)

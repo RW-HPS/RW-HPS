@@ -179,7 +179,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetCo
     override fun receiveCommand(packet: Packet) {
         try {
             GameInputStream(packet).use { inStream ->
-                inStream.skip(1)
+                inStream.skip(8)
                 val boolean1 = inStream.readBoolean()
                 if (boolean1) {
                     // 操作类型
