@@ -58,7 +58,6 @@ import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.net.NetService
 import net.rwhps.server.net.api.WebGetRelayInfo
 import net.rwhps.server.net.handler.tcp.StartHttp
-import net.rwhps.server.net.http.WebData
 import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
