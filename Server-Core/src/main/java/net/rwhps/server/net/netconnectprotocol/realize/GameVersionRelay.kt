@@ -10,6 +10,7 @@
 package net.rwhps.server.net.netconnectprotocol.realize
 
 import com.vdurmont.emoji.EmojiManager
+import net.rwhps.server.data.HessModuleManage
 import net.rwhps.server.data.global.Cache
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.NetStaticData
@@ -725,36 +726,27 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
             return
         }
 
-        var uplist = false
         var mods = false
         var newRoom = true
 
         if (id.startsWith("newup", ignoreCase = true)) {
-            uplist = true
             id = id.substring(5)
         } else if (id.startsWith("newsup", ignoreCase = true)) {
-            uplist = true
             id = id.substring(6)
         } else if (id.startsWith("modup", ignoreCase = true)) {
-            uplist = true
             mods = true
             id = id.substring(5)
         } else if (id.startsWith("modsup", ignoreCase = true)) {
-            uplist = true
             mods = true
             id = id.substring(6)
         } else if (id.startsWith("new", ignoreCase = true)) {
-            uplist = false
             id = id.substring(3)
         } else if (id.startsWith("news", ignoreCase = true)) {
-            uplist = false
             id = id.substring(4)
         } else if (id.startsWith("mod", ignoreCase = true)) {
-            uplist = false
             mods = true
             id = id.substring(3)
         } else if (id.startsWith("mods", ignoreCase = true)) {
-            uplist = false
             mods = true
             id = id.substring(4)
         } else {
@@ -805,29 +797,29 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
                 return
             }
 
-            if (newRoom) {
+//            if (newRoom) { // newRoom 在上一级if(756)中已经为true,else后面的部分永远不会被执行
                 newRelayId(mod = mods, customRelayData = custom)
 
                 if (custom.maxPlayerSize != -1 || custom.maxUnitSizt != 200) {
                     sendPacket(NetStaticData.RwHps.abstractNetPacket.getChatMessagePacket("自定义人数: ${custom.maxPlayerSize} 自定义单位: ${custom.maxUnitSizt}", "RELAY_CN-Custom", 5))
                 }
-            } else {
-                try {
-                    if (id.contains(".")) {
-                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", "不能包含 [ . ]"))
-                        return
-                    }
-                    relay = Relay.getRelay(id)
-                    if (relay != null) {
-                        addRelayConnect()
-                    } else {
-                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
-                    }
-                } catch (e: Exception) {
-                    debug(e)
-                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", e.message))
-                }
-            }
+//            } else {
+//                try {
+//                    if (id.contains(".")) {
+//                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", "不能包含 [ . ]"))
+//                        return
+//                    }
+//                    relay = Relay.getRelay(id)
+//                    if (relay != null) {
+//                        addRelayConnect()
+//                    } else {
+//                        sendRelayServerType(Data.i18NBundle.getinput("relay.server.no", id))
+//                    }
+//                } catch (e: Exception) {
+//                    debug(e)
+//                    sendRelayServerType(Data.i18NBundle.getinput("relay.server.error", e.message))
+//                }
+//            }
         }
     }
 
@@ -888,8 +880,8 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         o2.writeInt(clientVersion)
         o2.writeInt(GameMaps.MapType.customMap.ordinal)
         o2.writeString("RW-HPS RELAY Custom Mode")
-        o2.writeInt(Data.game.credits)
-        o2.writeInt(Data.game.mist)
+        o2.writeInt(HessModuleManage.hps.gameDataLink.credits)
+        o2.writeInt(HessModuleManage.hps.gameDataLink.fog)
         o2.writeBoolean(true)
         o2.writeInt(1)
         o2.writeByte(0)
@@ -903,22 +895,22 @@ open class GameVersionRelay(connectionAgreement: ConnectionAgreement) : Abstract
         /* RELAY Custom MaxPlayer */
         o.writeInt(customRelayData.maxPlayerSize)
         o.flushEncodeData(CompressOutputStream.getGzipOutputStream("teams", true).also { for (i in 0 until customRelayData.maxPlayerSize) it.writeBoolean(false)})
-        o.writeInt(Data.game.mist)
-        o.writeInt(Data.game.credits)
+        o.writeInt(HessModuleManage.hps.gameDataLink.fog)
+        o.writeInt(HessModuleManage.hps.gameDataLink.credits)
         o.writeBoolean(true)
         o.writeInt(1)
         o.writeByte(5)
         // RELAY Custom MaxUnit
         o.writeInt(customRelayData.maxUnitSizt)
         o.writeInt(customRelayData.maxUnitSizt)
-        o.writeInt(Data.game.initUnit)
+        o.writeInt(HessModuleManage.hps.gameDataLink.startingunits)
         // RELAY Custom income
         o.writeFloat(customRelayData.income)
-        o.writeBoolean(!Data.game.noNukes)
+        o.writeBoolean(!HessModuleManage.hps.gameDataLink.nukes)
         o.writeBoolean(false)
         o.writeBoolean(false)
-        o.writeBoolean(Data.game.sharedControl)
-        o.writeBoolean(Data.game.gamePaused)
+        o.writeBoolean(HessModuleManage.hps.gameDataLink.sharedcontrol)
+        o.writeBoolean(Data.game.gamePaused) // 在Hess那里找不到对应的
         sendPacket(o.createPacket(PacketType.TEAM_LIST))
     }
 
