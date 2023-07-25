@@ -362,6 +362,10 @@ internal class ClientCommands(handler: CommandHandler) {
                     player.sendSystemMessage(player.i18NBundle.getinput("start.playerNo", Data.configServer.StartMinPlayerSize))
                     return@register
                 }
+				
+				GameEngine.root.multiplayer.multiplayerStart()
+
+				GameEngine.data.eventManage.fire(ServerGameStartEvent())
 
             }
 
@@ -374,10 +378,6 @@ internal class ClientCommands(handler: CommandHandler) {
                 GameEngine.netEngine.ay.b = "${MapManage.maps.mapName}.tmx"
                 GameEngine.netEngine.ay.a = ai.b
             }
-
-            GameEngine.root.multiplayer.multiplayerStart()
-
-            GameEngine.data.eventManage.fire(ServerGameStartEvent())
 
         }
         handler.register("move", "<PlayerPositionNumber> <ToSerialNumber> <Team>", "HIDE") { args: Array<String>, player: PlayerHess ->
