@@ -42,7 +42,6 @@ import net.rwhps.server.data.bean.BeanRelayConfig
 import net.rwhps.server.data.bean.BeanServerConfig
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.global.Data.privateReader
-import net.rwhps.server.data.global.NetStaticData
 import net.rwhps.server.data.plugin.PluginManage
 import net.rwhps.server.data.plugin.PluginManage.addGlobalEventManage
 import net.rwhps.server.data.plugin.PluginManage.init
@@ -57,7 +56,6 @@ import net.rwhps.server.game.event.global.ServerLoadEvent
 import net.rwhps.server.io.ConsoleStream
 import net.rwhps.server.io.output.DynamicPrintStream
 import net.rwhps.server.net.api.WebGetRelayInfo
-import net.rwhps.server.util.CLITools
 import net.rwhps.server.util.SystemSetProperty
 import net.rwhps.server.util.file.FileUtils.Companion.getFolder
 import net.rwhps.server.util.game.CommandHandler
@@ -72,6 +70,7 @@ import org.jline.terminal.TerminalBuilder
 import java.io.InterruptedIOException
 import java.util.logging.Level
 import java.util.logging.Logger
+import javax.swing.JOptionPane
 import kotlin.system.exitProcess
 
 
@@ -166,7 +165,8 @@ object Main {
      */
     private fun inputMonitorInit() {
         // 防止傻逼双击运行jar
-        if (System.`in` == null) {
+        if (System.console() == null) {
+            JOptionPane.showMessageDialog(null, "RW-HPS需要在终端运行,而不是直接打开\nYou should run RW-HPS in a terminal,not direct open", "ERROR", JOptionPane.ERROR_MESSAGE)
             Core.exit()
         }
 
