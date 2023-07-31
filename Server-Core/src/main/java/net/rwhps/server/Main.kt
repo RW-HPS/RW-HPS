@@ -165,7 +165,7 @@ object Main {
      */
     private fun inputMonitorInit() {
         // 防止傻逼双击运行jar
-        if (System.console() == null) {
+        if (System.console() == null && System.getProperty("rwhps.forceRun") != "true") {
             JOptionPane.showMessageDialog(null, "RW-HPS需要在终端运行,而不是直接打开\nYou should run RW-HPS in a terminal,not direct open", "ERROR", JOptionPane.ERROR_MESSAGE)
             Core.exit()
         }
