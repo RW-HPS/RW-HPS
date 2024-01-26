@@ -383,9 +383,17 @@ internal class ClientCommands(handler: CommandHandler) {
             val i = AtomicInteger(0)
 
             player.sendSystemMessage(localeUtil.getinput("maps.top"))
-            MapManage.mapsData.keys.forEach { k: String ->
-                player.sendSystemMessage(localeUtil.getinput("maps.info", i.get(), k))
-                i.getAndIncrement()
+            // admin 查询地图时把地图数据发送给每一个玩家，方便其他人投票
+            if (player.isAdmin) {
+                MapManage.mapsData.keys.forEach { k: String ->
+                    room.call.sendSystemMessage(localeUtil.getinput("maps.info", i.get(), k))
+                    i.getAndIncrement()
+                }
+            } else {
+                MapManage.mapsData.keys.forEach { k: String ->
+                    player.sendSystemMessage(localeUtil.getinput("maps.info", i.get(), k))
+                    i.getAndIncrement()
+                }
             }
         }
         handler.register("afk", "clientCommands.afk") { _: Array<String>?, player: PlayerHess ->

@@ -64,8 +64,8 @@ class ConnectionAgreement {
                 it.abstractNetConnect.isDis
             }
         }
-
-        ip = convertIp(channel.remoteAddress().toString())
+        val remoteAddress = channel.remoteAddress() as InetSocketAddress
+        ip = remoteAddress.hostString
         ipLong24 = IpUtils.ipToLong24(ip, false)
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
@@ -109,7 +109,8 @@ class ConnectionAgreement {
         useAgreement = "UDP-BIO"
         isClosed = { socket.isClosed }
 
-        ip = convertIp(socket.remoteSocketAddressString)
+//        ip = convertIp(socket.remoteSocketAddressString)
+        ip = socket.remoteSocketAddressString;
         ipLong24 = IpUtils.ipToLong24(ip, false)
         ipCountry = IPCountry.getIpCountry(ip)
         ipCountryAll = IPCountry.getIpCountryAll(ip)
@@ -204,7 +205,7 @@ class ConnectionAgreement {
         return Objects.hash(id)
     }
 
-    private fun convertIp(ipString: String): String {
-        return ipString.substring(1, ipString.indexOf(':'))
-    }
+//    private fun convertIp(ipString: String): String {
+//        return ipString.substring(1, ipString.indexOf(':'))
+//    }
 }

@@ -14,6 +14,7 @@ import net.rwhps.server.core.thread.Threads
 import net.rwhps.server.data.global.Data
 import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.game.simulation.core.AbstractGameModule
+import net.rwhps.server.struct.list.Seq
 import net.rwhps.server.util.Time
 import net.rwhps.server.util.log.Log
 import java.io.IOException
@@ -67,7 +68,9 @@ class CallHess(private val gameModule: AbstractGameModule) {
      */
     @JvmOverloads
     fun killAllPlayer(msg: String = "Game Over") {
-        gameModule.room.playerManage.playerGroup.eachAll { e: PlayerHess ->
+        val playerGroup = Seq<PlayerHess>()
+        playerGroup.addAll(gameModule.room.playerManage.playerGroup)
+        playerGroup.eachAll { e: PlayerHess ->
             try {
                 e.kickPlayer(msg)
             } catch (err: IOException) {

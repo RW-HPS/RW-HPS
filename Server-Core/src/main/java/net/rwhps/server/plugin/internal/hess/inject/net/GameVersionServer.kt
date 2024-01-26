@@ -17,11 +17,13 @@ import net.rwhps.server.data.player.PlayerHess
 import net.rwhps.server.data.totalizer.TimeAndNumber
 import net.rwhps.server.func.Control
 import net.rwhps.server.game.enums.GameCommandActions
+import net.rwhps.server.game.enums.GameFactoryBuildUnits
 import net.rwhps.server.game.enums.GameInternalUnits
 import net.rwhps.server.game.enums.GamePingActions
 import net.rwhps.server.game.event.game.PlayerChatEvent
 import net.rwhps.server.game.event.game.PlayerLeaveEvent
 import net.rwhps.server.game.event.game.PlayerOperationUnitEvent
+import net.rwhps.server.game.event.game.PlayerSetFactoryToBuildUnitEvent
 import net.rwhps.server.io.GameInputStream
 import net.rwhps.server.io.GameOutputStream
 import net.rwhps.server.io.output.CompressOutputStream
@@ -59,7 +61,7 @@ import com.corrodinggames.rts.gameFramework.j.k as GameNetInputStream
  * @author Dr (dr@der.kim)
  */
 @MainProtocolImplementation
-open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetConnect(playerConnectX.connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
+open class GameVersionServer(val playerConnectX: PlayerConnectX) : AbstractNetConnect(playerConnectX.connectionAgreement), AbstractNetConnectData, AbstractNetConnectServer {
     init {
         playerConnectX.serverConnect = this
     }
@@ -169,10 +171,12 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
                         player.sendSystemMessage("Too many arguments. Usage: " + response.command.text + " " + response.command.paramText)
                         packet.status = Control.EventNext.STOPPED
                     }
+
                     CommandHandler.ResponseType.fewArguments -> {
                         player.sendSystemMessage("Too few arguments. Usage: " + response.command.text + " " + response.command.paramText)
                         packet.status = Control.EventNext.STOPPED
                     }
+
                     else -> {
                         // Ignore
                     }
@@ -186,7 +190,11 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
     @Throws(IOException::class)
     override fun receiveCommand(packet: Packet) = try {
         GameInputStream(GameInputStream(packet).getDecodeBytes()).use { inStream ->
-            inStream.skip(1)
+            val b0 = inStream.readByte()
+            // 未知数据包，跳过避免报错
+            if (b0 == 2) {
+                return
+            }
             val boolean1 = inStream.readBoolean()
             if (boolean1) {
                 // 操作类型
@@ -220,6 +228,7 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
                 }
                 inStream.skip(20)
                 inStream.readIsString()
+                return
             }
             inStream.skip(10)
             val boolean3 = inStream.readBoolean()
@@ -229,36 +238,48 @@ open class GameVersionServer(val playerConnectX: PlayerConnectX): AbstractNetCon
             }
             inStream.skip(1)
 
-            val int2 = inStream.readInt()
-            for (i in 0 until int2) {
-                inStream.skip(8)
-            }
+            // 操作数量
+            val opsQty = inStream.readInt()
             val boolean4 = inStream.readBoolean()
             if (boolean4) {
                 inStream.skip(1)
             }
             // Map Ping
             val mapPing = inStream.readBoolean()
-            val x: Float
-            val y: Float
             if (mapPing) {
-                x = inStream.readFloat()
-                y = inStream.readFloat()
-            } else {
-                return
-            }
-            inStream.skip(8)
+                val x: Float = inStream.readFloat()
+                val y: Float = inStream.readFloat()
+                inStream.skip(8)
+                val action = GamePingActions.from(inStream.readString())
+                val lambda = player.getData<(AbstractNetConnectServer, GamePingActions, Float, Float) -> Unit>("Ping")
+                if (lambda != null) {
+                    lambda(this, action, x, y)
+                    player.removeData("Ping")
+                    return
+                }
+            } else if (opsQty > 0) {
+                inStream.skip(8)
+                // 是否为核弹
+                val isNuke = inStream.readBoolean()
+                if (!isNuke) {
+                    inStream.skip(opsQty * 8L)
+                    // 工厂建造单位名称
+                    val nameUnit = inStream.readString()
+                    var gameFactoryBuildUnits = GameFactoryBuildUnits.from(nameUnit);
+                    val playerSetFactoryToBuildUnitEvent = PlayerSetFactoryToBuildUnitEvent(player, name, gameFactoryBuildUnits);
+                    GameEngine.data.eventManage.fire(playerSetFactoryToBuildUnitEvent).await()
+                    if (!playerSetFactoryToBuildUnitEvent.resultStatus) {
+                        packet.status = Control.EventNext.STOPPED
+                        return
+                    }
+                    println(nameUnit)
+                }
 
-            val action = GamePingActions.from(inStream.readString())
 
-            val lambda = player.getData<(AbstractNetConnectServer, GamePingActions, Float, Float)->Unit>("Ping")
-            if (lambda != null) {
-                lambda(this, action, x, y)
-                player.removeData("Ping")
-                return
             }
         }
     } catch (e: Exception) {
+//        Log.error(packet.bytes.contentToString())
         Log.error(e)
     }
 

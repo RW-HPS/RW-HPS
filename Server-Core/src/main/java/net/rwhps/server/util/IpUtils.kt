@@ -11,6 +11,7 @@ package net.rwhps.server.util
 
 import net.rwhps.server.data.global.ArrayData
 import net.rwhps.server.data.global.RegexData
+import java.math.BigInteger
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -71,6 +72,47 @@ object IpUtils {
         return longToIP(strLong.toLong())
     }
 
+
+    /**
+     * 通过字符串判断是否为ipv4
+     */
+    fun isIPv4(address: String): Boolean {
+        val ipv4Pattern = Pattern.compile(
+            "^(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$"
+        )
+        return ipv4Pattern.matcher(address).matches()
+    }
+
+    /**
+     * 通过字符串判断是否为ipv6
+     */
+    fun isIPv6(address: String): Boolean {
+        val ipv6Pattern = Pattern.compile(
+            "^([0-9a-fA-F]{1,4}:){7}([0-9a-fA-F]{1,4}|:)$|" +
+                    "^([0-9a-fA-F]{1,4}:){1,7}:([0-9a-fA-F]{1,4}:){0,6}[0-9a-fA-F]{1,4}$|" +
+                    "^([0-9a-fA-F]{1,4}:){1,6}:([0-9a-fA-F]{1,4}:){0,7}|^::1$|" +
+                    "^::([fF]{4}:)?([0-9]{1,3}\\.){3}[0-9]{1,3}$|" +
+                    "^([0-9a-fA-F]{1,4}:){1,4}:[0-9]{1,3}\\.([0-9]{1,3}\\.){2}[0-9]{1,3}$"
+        )
+        return ipv6Pattern.matcher(address).matches()
+    }
+
+    /**
+     * 通过long值判断是否为ipv4
+     */
+    private fun isIPv4(ipAsLong: Long): Boolean {
+        // IPv4的长整数范围在 0.0.0.0 到 255.255.255.255 之间
+        return ipAsLong >= 0L && ipAsLong <= 4294967295L
+    }
+
+    /**
+     * 通过long值判断是否为ipv6
+     */
+    private fun isIPv6(ipAsLong: Long): Boolean {
+        // IPv6的长整数范围大于IPv4，具体范围需要根据实际情况调整
+        return ipAsLong > 4294967295L
+    }
+
     /**
      * ip地址转成long型数字
      * 将IP地址转化成整数的方法如下：
@@ -85,8 +127,17 @@ object IpUtils {
         if (strIp == "0") {
             return strIp
         }
-        val ip = strIp.split(".").toTypedArray()
-        return (((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)) + if (separateAddress) ip[3].toLong() else 0).toString()
+        if (isIPv4(strIp)) {
+            val ip = strIp.split(".").toTypedArray()
+            return (((ip[0].toLong() shl 24) + (ip[1].toLong() shl 16) + (ip[2].toLong() shl 8)) + if (separateAddress) ip[3].toLong() else 0).toString()
+        }
+        if (isIPv6(strIp)) {
+            val address = InetAddress.getByName(strIp)
+            val bytes = address.address
+            val bigInteger = BigInteger(1, bytes)
+            return bigInteger.toLong().toString()
+        }
+        return ""
     }
 
     /**

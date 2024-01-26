@@ -218,10 +218,10 @@ internal class UpListMain: Plugin() {
 
     private fun remove(log: StrCons) {
         if (upServerList) {
-            if (Threads.closeTimeTask(CallTimeTask.CustomUpServerListTask) {
-                    HttpRequestOkHttp.doPostRw("http://gs1.corrodinggames.com/masterserver/1.4/interface", removeData)
-                    HttpRequestOkHttp.doPostRw("http://gs4.corrodinggames.net/masterserver/1.4/interface", removeData)
-                }) {
+            Threads.closeTimeTask(CallTimeTask.CustomUpServerListTask)
+            val removeGs1 = HttpRequestOkHttp.doPostRw("http://114.55.226.106:9898/masterserver/1.4/interface", removeData).contains("REMOVED")
+            val removeGs2 = HttpRequestOkHttp.doPostRw("http://114.55.226.106:9899/masterserver/1.4/interface", removeData).contains("REMOVED")
+            if (removeGs1 || removeGs2) {
                 upServerList = false
                 log("Deleted UPLIST")
                 return
