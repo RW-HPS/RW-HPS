@@ -1,6 +1,7 @@
 <div align="center">
 <h1>RW-HPS Project Unofficial</h1>
 
+这是一个非官方仓库。由于原仓库已被删除，因此这是一个备份。
 This is an unofficial repository. Due to the original repository being deleted, this is a backup.
 
 ![](https://img.shields.io/github/stars/RW-HPS/RW-HPS.svg)
@@ -146,3 +147,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FRW-HPS%2FRW-HPS?ref=badge_large)
 </details>
+
